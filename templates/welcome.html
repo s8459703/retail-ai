@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail AI — Smart Sales Forecasting</title>
+    <meta name="description" content="AI-powered retail sales forecasting and analytics. Predict future sales, analyze demand patterns, and make smarter inventory decisions.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/welcome.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="landing-body">
+
+    <!-- Navbar -->
+    <header class="landing-nav" id="landingNav">
+        <div class="landing-nav-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+        <nav class="landing-nav-links" id="navLinks">
+            <a href="#features" class="nav-anchor">Features</a>
+            <a href="#stats"    class="nav-anchor">Stats</a>
+            <a href="#about"    class="nav-anchor">About</a>
+        </nav>
+        <div class="landing-nav-actions">
+            <a href="{{ url_for('login') }}"   class="btn btn-outline btn-sm">Login</a>
+            <a href="{{ url_for('login') }}"   class="btn btn-primary btn-sm">Get Started</a>
+        </div>
+        <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero-section">
+        <div class="hero-bg-glow"></div>
+        <div class="hero-bg-glow hero-bg-glow--right"></div>
+
+        <div class="hero-content">
+            <div class="hero-tag">
+                <i class="fas fa-bolt"></i> AI-powered Retail Intelligence
+            </div>
+            <h1 class="hero-title">
+                Smart Sales Forecasting<br>
+                <span class="hero-title-accent">for Retail Business</span>
+            </h1>
+            <p class="hero-desc">
+                Analyze demand patterns, predict future sales, and improve your inventory
+                decisions using machine learning — all in one dashboard.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Get Started Free
+                </a>
+                <a href="{{ url_for('dashboard') if session.get('user') else url_for('login') }}"
+                   class="btn btn-outline btn-lg">
+                    <i class="fas fa-chart-line"></i> View Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-card-mock">
+                <div class="mock-topbar">
+                    <span class="mock-dot red"></span>
+                    <span class="mock-dot yellow"></span>
+                    <span class="mock-dot green"></span>
+                </div>
+                <div class="mock-stats">
+                    <div class="mock-stat">
+                        <div class="mock-stat-val">₹26.9L</div>
+                        <div class="mock-stat-lbl">Total Revenue</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-val">1,000</div>
+                        <div class="mock-stat-lbl">Transactions</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="mock-stat-val">₹2,698</div>
+                        <div class="mock-stat-lbl">Avg Order</div>
+                    </div>
+                </div>
+                <div class="mock-bars">
+                    <div class="mock-bar" style="height:55%"></div>
+                    <div class="mock-bar" style="height:75%"></div>
+                    <div class="mock-bar" style="height:45%"></div>
+                    <div class="mock-bar" style="height:90%"></div>
+                    <div class="mock-bar" style="height:65%"></div>
+                    <div class="mock-bar" style="height:80%"></div>
+                    <div class="mock-bar" style="height:70%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats bar -->
+    <section class="stats-bar" id="stats">
+        <div class="stats-bar-item">
+            <div class="stats-bar-value">1,000</div>
+            <div class="stats-bar-label">Transactions Analyzed</div>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+            <div class="stats-bar-value">₹26.9L</div>
+            <div class="stats-bar-label">Total Revenue Tracked</div>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+            <div class="stats-bar-value">3</div>
+            <div class="stats-bar-label">Product Categories</div>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+            <div class="stats-bar-value">6</div>
+            <div class="stats-bar-label">Cities Covered</div>
+        </div>
+        <div class="stats-bar-divider"></div>
+        <div class="stats-bar-item">
+            <div class="stats-bar-value">2023–24</div>
+            <div class="stats-bar-label">Data Period</div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-section" id="features">
+        <div class="section-label">What we offer</div>
+        <h2 class="section-title">Everything you need to forecast smarter</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Sales Dashboard</h3>
+                <p>Interactive bar, pie, and line charts showing revenue by category (Beauty ₹8.26L · Clothing ₹9.39L · Electronics ₹9.33L) and monthly trends across 2023–2024.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <h3>ML Prediction</h3>
+                <p>Linear regression model trained on 1,000 transactions predicts the next order value. Average transaction is ₹2,698 with a range of ₹100 – ₹7,960.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                <h3>10-Step Forecast</h3>
+                <p>Multi-step forecasting predicts the next 10 transactions with a historical vs forecast chart, trend indicators, and summary stats (total, avg, high, low).</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <h3>City-level Insights</h3>
+                <p>Sales data spans 6 Indian cities — Coimbatore (top, ₹4.8L), Delhi, Hyderabad, Mumbai, Bangalore, and Chennai — giving you regional performance visibility.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Customer Demographics</h3>
+                <p>Dataset covers 1,000 customers aged 18–60 (avg 38.8), with near-equal gender split — 511 Female, 489 Male — across all product categories.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-upload"></i></div>
+                <h3>CSV Upload & Preview</h3>
+                <p>Drag and drop your own retail CSV to instantly preview and validate data. Supports the same 12-column schema used by the built-in dataset.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="about">
+        <div class="cta-content">
+            <h2>Ready to forecast smarter?</h2>
+            <p>Sign in to your Retail AI account and start making data-driven decisions today.</p>
+            <div class="cta-actions">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-right-to-bracket"></i> Sign In Now
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline btn-lg">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="footer-brand"><i class="fas fa-store"></i> Retail AI</div>
+        <div class="footer-links">
+            <a href="#features" class="nav-anchor">Features</a>
+            <a href="#stats"    class="nav-anchor">Stats</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        </div>
+        <div class="footer-copy">
+            © <span id="footerYear"></span> Retail AI. Built with Flask &amp; scikit-learn.
+        </div>
+    </footer>
+
+    <script>
+        // Dynamic copyright year
+        document.getElementById("footerYear").textContent = new Date().getFullYear();
+
+        // Smooth scroll for all anchor links
+        document.querySelectorAll(".nav-anchor").forEach(link => {
+            link.addEventListener("click", (e) => {
+                const href = link.getAttribute("href");
+                if (href.startsWith("#")) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                }
+                // Close mobile nav on link click
+                navLinks.classList.remove("open");
+                navToggle.setAttribute("aria-expanded", "false");
+                navToggle.querySelector("i").className = "fas fa-bars";
+            });
+        });
+
+        // Mobile nav toggle
+        const navToggle = document.getElementById("navToggle");
+        const navLinks  = document.getElementById("navLinks");
+
+        navToggle.addEventListener("click", () => {
+            const isOpen = navLinks.classList.toggle("open");
+            navToggle.setAttribute("aria-expanded", isOpen);
+            navToggle.querySelector("i").className = isOpen ? "fas fa-xmark" : "fas fa-bars";
+        });
+
+        // Close mobile nav on outside click
+        document.addEventListener("click", (e) => {
+            if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) {
+                navLinks.classList.remove("open");
+                navToggle.setAttribute("aria-expanded", "false");
+                navToggle.querySelector("i").className = "fas fa-bars";
+            }
+        });
+
+        // Navbar scroll shadow
+        window.addEventListener("scroll", () => {
+            document.getElementById("landingNav").classList.toggle(
+                "nav-scrolled", window.scrollY > 20
+            );
+        }, { passive: true });
+    </script>
+
+</body>
+</html>

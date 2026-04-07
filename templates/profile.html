@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/upload" class="nav-item">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+            <a href="{{ url_for('predict') }}" class="nav-item">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a href="/future" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Forecast
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-gear"></i> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-user-circle"></i> Profile</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile hero -->
+        <div class="profile-hero">
+            <div class="profile-avatar-lg">
+                {{ session['user'][0].upper() }}
+            </div>
+            <div class="profile-hero-info">
+                <h1 class="profile-name">{{ session['user'] }}</h1>
+                <p class="profile-role">
+                    <span class="badge badge-info"><i class="fas fa-shield-halved"></i> Administrator</span>
+                    <span class="badge badge-success"><i class="fas fa-circle"></i> Active</span>
+                </p>
+            </div>
+            <a href="/premium" class="btn primary profile-upgrade-btn">
+                <i class="fas fa-crown"></i> Upgrade Plan
+            </a>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-database"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ "{:,}".format(total_orders) }}</div>
+                    <div class="stat-label">Transactions in Dataset</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(total_sales) }}</div>
+                    <div class="stat-label">Total Sales Tracked</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-brain"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ "{:,}".format(total_categories) }}</div>
+                    <div class="stat-label">Product Categories</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-crown"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value stat-value--sm">Basic</div>
+                    <div class="stat-label">Current Plan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile form + account info side by side -->
+        <div class="profile-grid">
+
+            <!-- Edit profile -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-pen-to-square"></i>
+                    <div>
+                        <div class="settings-card-title">Edit Profile</div>
+                        <div class="settings-card-desc">Update your account information</div>
+                    </div>
+                </div>
+                <div style="padding: 1.75rem;">
+                    <form id="profileForm">
+
+                        <div class="profile-form-field">
+                            <label class="profile-label">Username</label>
+                            <div class="settings-input-row">
+                                <input type="text" class="settings-input" value="{{ session['user'] }}" readonly
+                                    id="usernameInput">
+                                <button type="button" class="btn secondary settings-input-btn" id="editUsernameBtn">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="profile-form-field">
+                            <label class="profile-label">Display Name</label>
+                            <input type="text" class="settings-input" placeholder="Enter your full name"
+                                autocomplete="name">
+                        </div>
+
+                        <div class="profile-form-field">
+                            <label class="profile-label">Email Address</label>
+                            <input type="email" class="settings-input" placeholder="your@email.com"
+                                autocomplete="email">
+                        </div>
+
+                        <div class="profile-form-field">
+                            <label class="profile-label">Business Name</label>
+                            <input type="text" class="settings-input" placeholder="Your retail business name"
+                                autocomplete="organization">
+                        </div>
+
+                        <div class="profile-form-field">
+                            <label class="profile-label">Location</label>
+                            <input type="text" class="settings-input" placeholder="City, Country"
+                                autocomplete="address-level2">
+                        </div>
+
+                        <div class="settings-save-row" style="margin-top: 1.5rem;">
+                            <button type="submit" class="btn primary" id="saveProfileBtn">
+                                <i class="fas fa-floppy-disk"></i> Save Changes
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account info + security -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+                <!-- Account info -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-circle-info"></i>
+                        <div>
+                            <div class="settings-card-title">Account Info</div>
+                            <div class="settings-card-desc">Read-only account details</div>
+                        </div>
+                    </div>
+                    <div class="settings-rows">
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Role</div>
+                            </div>
+                            <span class="badge badge-info">Administrator</span>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Plan</div>
+                            </div>
+                            <span class="badge badge-warning">Basic (Free)</span>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Dataset</div>
+                            </div>
+                            <span class="table-count">retail_sales.csv</span>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Best Category</div>
+                            </div>
+                            <span class="category-badge">{{ best_product }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <div class="settings-card-title">Security</div>
+                            <div class="settings-card-desc">Manage your password and session</div>
+                        </div>
+                    </div>
+                    <div class="settings-rows">
+                        <div class="settings-row settings-row--col">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Change Password</div>
+                                <div class="settings-row-desc">Set a new account password</div>
+                            </div>
+                            <div class="settings-input-row">
+                                <input type="password" class="settings-input" placeholder="New password"
+                                    id="newPassword" autocomplete="new-password">
+                                <button type="button" class="btn secondary settings-input-btn" id="toggleNewPw">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Sign Out</div>
+                                <div class="settings-row-desc">End your current session</div>
+                            </div>
+                            <a href="{{ url_for('logout') }}" class="btn secondary"
+                                style="border-color:rgba(239,68,68,0.4); color:#fca5a5;">
+                                <i class="fas fa-right-from-bracket"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Password visibility toggle
+        document.getElementById("toggleNewPw").addEventListener("click", () => {
+            const input = document.getElementById("newPassword");
+            const icon = document.querySelector("#toggleNewPw i");
+            const hidden = input.type === "password";
+            input.type = hidden ? "text" : "password";
+            icon.className = hidden ? "fas fa-eye-slash" : "fas fa-eye";
+        });
+
+        // Username edit toggle
+        document.getElementById("editUsernameBtn").addEventListener("click", () => {
+            const input = document.getElementById("usernameInput");
+            const isReadonly = input.hasAttribute("readonly");
+            if (isReadonly) {
+                input.removeAttribute("readonly");
+                input.focus();
+                document.querySelector("#editUsernameBtn i").className = "fas fa-xmark";
+            } else {
+                input.setAttribute("readonly", true);
+                document.querySelector("#editUsernameBtn i").className = "fas fa-pen";
+            }
+        });
+
+        // Save button feedback
+        document.getElementById("profileForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("saveProfileBtn");
+            btn.innerHTML = `<i class="fas fa-check"></i> Saved!`;
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fas fa-floppy-disk"></i> Save Changes`;
+                btn.disabled = false;
+            }, 2000);
+        });
+    </script>
+
+</body>
+
+</html>

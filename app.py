@@ -1,0 +1,418 @@
+import os
+import json
+import hashlib
+import numpy as np
+import pandas as pd
+from flask import Flask, render_template, request, redirect, session, url_for
+from sklearn.linear_model import LinearRegression
+
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+
+DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset", "retail_sales.csv")
+UPLOAD_FOLDER    = os.path.join(os.path.dirname(__file__), "dataset", "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+REQUIRED_COLUMNS = {"Total Amount", "Product Category", "Year", "Month"}
+
+ADMIN_USER  = os.environ.get("ADMIN_USER", "admin")
+ADMIN_PASS  = os.environ.get("ADMIN_PASS", "changeme")
+USERS_FILE  = os.path.join(os.path.dirname(__file__), "dataset", "users.json")
+
+
+def hash_password(pwd):
+    return hashlib.sha256(pwd.encode()).hexdigest()
+
+
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        # Seed with admin account
+        users = {ADMIN_USER: {"password": hash_password(ADMIN_PASS), "role": "admin"}}
+        save_users(users)
+        return users
+    with open(USERS_FILE, "r") as f:
+        return json.load(f)
+
+
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f, indent=2)
+
+
+def verify_user(username, password):
+    users = load_users()
+    user  = users.get(username)
+    if not user:
+        return False
+    # Support both hashed and legacy plain-text (admin env var)
+    return user["password"] == hash_password(password)
+
+
+def get_data_path():
+    try:
+        return session.get("data_path", DEFAULT_DATA_PATH)
+    except RuntimeError:
+        return DEFAULT_DATA_PATH
+
+
+def load_data():
+    df = pd.read_csv(get_data_path())
+    df.columns = df.columns.str.strip()
+    return df
+
+
+def is_logged_in():
+    return "user" in session
+
+
+def login_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not is_logged_in():
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/")  # public: landing page
+def home():
+    return render_template("index.html")
+
+
+@app.route("/home")
+@login_required
+def home_inner():
+    return render_template("home.html")
+
+
+@app.route("/welcome")  # public: pre-login welcome page
+def welcome():
+    return render_template("welcome.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
+    error = None
+    success = None
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        confirm  = request.form.get("confirm_password", "")
+
+        if not username or not password:
+            error = "Username and password are required."
+        elif len(username) < 3:
+            error = "Username must be at least 3 characters."
+        elif len(password) < 6:
+            error = "Password must be at least 6 characters."
+        elif password != confirm:
+            error = "Passwords do not match."
+        else:
+            users = load_users()
+            if username in users:
+                error = "Username already exists. Please choose another."
+            else:
+                users[username] = {"password": hash_password(password), "role": "user"}
+                save_users(users)
+                success = "Account created! You can now sign in."
+    return render_template("register.html", error=error, success=success)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if is_logged_in():
+        return redirect(url_for("dashboard"))
+
+    error = None
+    if request.method == "POST":
+        user = request.form.get("username", "").strip()
+        pwd = request.form.get("password", "")
+
+        if verify_user(user, pwd):
+            session["user"] = user
+            return redirect(url_for("dashboard"))
+        error = "Invalid username or password."
+
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")  # public: must be accessible to clear expired sessions
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    try:
+        df = load_data()
+    except Exception as e:
+        return render_template("error.html", message=f"Failed to load data: {e}"), 500
+
+    # Summary stats
+    total_sales  = round(float(df["Total Amount"].sum()), 2)
+    total_orders = len(df)
+    avg_sales    = round(float(df["Total Amount"].mean()), 2)
+    best_product = df.groupby("Product Category")["Total Amount"].sum().idxmax()
+
+    # Category breakdown
+    cat_group   = df.groupby("Product Category")["Total Amount"]
+    categories  = cat_group.sum().index.tolist()
+    cat_sales   = [round(float(v), 2) for v in cat_group.sum().values]
+    cat_counts  = df.groupby("Product Category").size().reindex(categories).tolist()
+    cat_avgs    = [round(float(v), 2) for v in cat_group.mean().reindex(categories).values]
+
+    table_rows = [
+        {"category": c, "total": t, "count": n, "avg": a}
+        for c, t, n, a in zip(categories, cat_sales, cat_counts, cat_avgs)
+    ]
+
+    # Monthly trend
+    df["YearMonth"] = df["Year"].astype(str) + "-" + df["Month"].astype(str).str.zfill(2)
+    monthly = df.groupby("YearMonth")["Total Amount"].sum().sort_index()
+    monthly_labels = monthly.index.tolist()
+    monthly_sales  = [round(float(v), 2) for v in monthly.values]
+
+    # Gender breakdown
+    gender_counts = df["Gender"].value_counts()
+    gender_labels = gender_counts.index.tolist()
+    gender_values = gender_counts.values.tolist()
+
+    # City breakdown
+    city_group  = df.groupby("Place")["Total Amount"].sum().sort_values(ascending=False)
+    city_labels = city_group.index.tolist()
+    city_sales  = [round(float(v), 2) for v in city_group.values]
+
+    # Extra stats
+    max_sale = round(float(df["Total Amount"].max()), 2)
+    min_sale = round(float(df["Total Amount"].min()), 2)
+    avg_age  = round(float(df["Age"].mean()), 1) if "Age" in df.columns else "—"
+
+    return render_template(
+        "dashboard.html",
+        total_sales=total_sales,
+        total_orders=total_orders,
+        avg_sales=avg_sales,
+        best_product=best_product,
+        max_sale=max_sale,
+        min_sale=min_sale,
+        avg_age=avg_age,
+        categories=categories,
+        category_sales=cat_sales,
+        table_rows=table_rows,
+        monthly_labels=monthly_labels,
+        monthly_sales=monthly_sales,
+        gender_labels=gender_labels,
+        gender_values=gender_values,
+        city_labels=city_labels,
+        city_sales=city_sales,
+    )
+
+
+@app.route("/predict", methods=["GET", "POST"])
+@login_required
+def predict():
+    prediction = None
+    error = None
+
+    try:
+        df = load_data()
+        df["YearMonth"] = df["Year"].astype(str) + "-" + df["Month"].astype(str).str.zfill(2)
+        monthly = df.groupby("YearMonth")["Total Amount"].sum().sort_index()
+        monthly_labels = monthly.index.tolist()
+        monthly_sales  = [round(float(v), 2) for v in monthly.values]
+    except Exception:
+        monthly_labels, monthly_sales = [], []
+
+    if request.method == "POST":
+        try:
+            df = load_data()
+            df["Index"] = np.arange(len(df))
+            model = LinearRegression()
+            model.fit(df[["Index"]], df["Total Amount"])
+            prediction = round(float(model.predict(pd.DataFrame([[len(df)]], columns=["Index"]))[0]), 2)
+        except Exception as e:
+            error = f"Prediction failed: {e}"
+
+    return render_template(
+        "predict.html",
+        prediction=prediction,
+        error=error,
+        monthly_labels=monthly_labels,
+        monthly_sales=monthly_sales,
+    )
+
+
+@app.route("/future")
+@login_required
+def future():
+    STEPS = session.get("forecast_steps", 10)
+    try:
+        df = load_data()
+        df["Index"] = np.arange(len(df))
+
+        model = LinearRegression()
+        model.fit(df[["Index"]], df["Total Amount"])
+
+        # Last 30 transactions as history context
+        history_df     = df.tail(30)
+        history_labels = [f"T-{len(df) - i}" for i in history_df["Index"].tolist()]
+        history_values = [round(float(v), 2) for v in history_df["Total Amount"].tolist()]
+
+        # Next STEPS predictions
+        next_indices   = np.arange(len(df), len(df) + STEPS).reshape(-1, 1)
+        raw_preds      = model.predict(next_indices)
+        forecast_values = [round(float(v), 2) for v in raw_preds]
+        forecast_labels = [f"T+{i + 1}" for i in range(STEPS)]
+
+    except Exception as e:
+        return render_template("error.html", message=f"Forecast failed: {e}"), 500
+
+    return render_template(
+        "future.html",
+        forecast_steps=STEPS,
+        forecast_labels=forecast_labels,
+        forecast_values=forecast_values,
+        forecast_rows=list(zip(forecast_labels, forecast_values)),
+        forecast_total=round(sum(forecast_values), 2),
+        forecast_avg=round(sum(forecast_values) / STEPS, 2),
+        forecast_max=round(max(forecast_values), 2),
+        forecast_min=round(min(forecast_values), 2),
+        history_labels=history_labels,
+        history_values=history_values,
+    )
+
+
+@app.route("/premium")
+@login_required
+def premium():
+    return render_template("premium.html")
+
+
+@app.route("/upload", methods=["GET", "POST"])
+@login_required
+def upload():
+    error = None
+    success = None
+    preview_rows = []
+    preview_cols = []
+    file_info = None
+
+    if request.method == "POST":
+        file = request.files.get("datafile")
+
+        if not file or file.filename == "":
+            error = "No file selected. Please choose a CSV file."
+        elif not file.filename.lower().endswith(".csv"):
+            error = "Invalid file type. Only .csv files are accepted."
+        else:
+            try:
+                df = pd.read_csv(file)
+                df.columns = df.columns.str.strip()
+
+                missing = REQUIRED_COLUMNS - set(df.columns)
+                if missing:
+                    error = f"Missing required columns: {', '.join(sorted(missing))}"
+                elif len(df) == 0:
+                    error = "The uploaded file is empty."
+                else:
+                    # Save file
+                    safe_name = "uploaded_" + session["user"] + ".csv"
+                    save_path = os.path.join(UPLOAD_FOLDER, safe_name)
+                    df.to_csv(save_path, index=False)
+                    session["data_path"] = save_path
+
+                    # Build preview
+                    preview_cols = df.columns.tolist()
+                    preview_rows = df.head(10).values.tolist()
+                    file_info = {
+                        "name": file.filename,
+                        "rows": len(df),
+                        "cols": len(df.columns),
+                        "total": round(float(df["Total Amount"].sum()), 2) if "Total Amount" in df.columns else None,
+                    }
+                    success = f"File uploaded successfully — {len(df):,} rows loaded. Dashboard now uses your data."
+            except Exception as e:
+                error = f"Failed to read file: {e}"
+
+    return render_template(
+        "upload.html",
+        error=error,
+        success=success,
+        preview_cols=preview_cols,
+        preview_rows=preview_rows,
+        file_info=file_info,
+        using_custom=session.get("data_path") != DEFAULT_DATA_PATH and "data_path" in session,
+    )
+
+
+@app.route("/upload/reset")
+@login_required
+def upload_reset():
+    session.pop("data_path", None)
+    return redirect(url_for("upload"))
+
+
+@app.route("/profile")
+@login_required
+def profile():
+    try:
+        df = load_data()
+        total_orders     = len(df)
+        total_sales      = round(float(df["Total Amount"].sum()), 2)
+        total_categories = df["Product Category"].nunique()
+        best_product     = df.groupby("Product Category")["Total Amount"].sum().idxmax()
+    except Exception:
+        total_orders, total_sales, total_categories, best_product = 0, 0.0, 0, "—"
+
+    return render_template(
+        "profile.html",
+        total_orders=total_orders,
+        total_sales=total_sales,
+        total_categories=total_categories,
+        best_product=best_product,
+    )
+
+
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    success = None
+    error   = None
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "change_password":
+            current = request.form.get("current_password", "")
+            new_pwd = request.form.get("new_password", "")
+            confirm = request.form.get("confirm_password", "")
+            if not verify_user(session["user"], current):
+                error = "Current password is incorrect."
+            elif len(new_pwd) < 6:
+                error = "New password must be at least 6 characters."
+            elif new_pwd != confirm:
+                error = "New passwords do not match."
+            else:
+                users = load_users()
+                users[session["user"]]["password"] = hash_password(new_pwd)
+                save_users(users)
+                success = "Password updated successfully."
+        elif action == "save_forecast_steps":
+            steps = request.form.get("forecast_steps", "10")
+            if steps in ("10", "20", "30"):
+                session["forecast_steps"] = int(steps)
+                success = f"Forecast steps set to {steps}."
+    return render_template(
+        "settings.html",
+        success=success,
+        error=error,
+        forecast_steps=session.get("forecast_steps", 10),
+    )
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host="0.0.0.0", port=port)

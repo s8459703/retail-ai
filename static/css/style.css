@@ -1,0 +1,646 @@
+/* ═══════════════════════════════════════════════════════════
+   style.css  —  Shared base styles for Retail AI
+   Used by: index.html, login.html, register.html, welcome.html
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Design Tokens ───────────────────────────────────────── */
+:root {
+    --brand-from: #667eea;
+    --brand-to: #764ba2;
+    --brand-grad: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+
+    --bg-dark-from: #0f0f23;
+    --bg-dark-to: #1a1a3e;
+    --bg-dark: linear-gradient(135deg, var(--bg-dark-from), var(--bg-dark-to));
+
+    --surface-1: rgba(255, 255, 255, 0.05);
+    --surface-2: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.1);
+
+    --text-primary: #ffffff;
+    --text-muted: #b0b0d0;
+    --text-faint: #888;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 30px;
+
+    --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.4);
+    --shadow-btn: 0 6px 20px rgba(102, 126, 234, 0.35);
+
+    --transition: 0.25s ease;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.4);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.7);
+}
+
+/* ── Centered page layout (index / landing) ─────────────── */
+.page-center {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+/* ── Glass card (index.html landing card) ───────────────── */
+.glass-card {
+    background: var(--surface-1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    max-width: 480px;
+    width: 100%;
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+.glass-card .brand-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.glass-card h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.glass-card p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.glass-card .btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ── Split card (login / register) ──────────────────────── */
+.split-card {
+    display: flex;
+    width: min(1000px, 100%);
+    min-height: 560px;
+    background: #f3f3f3;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+}
+
+.split-card .panel-left {
+    width: 50%;
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #f3f3f3;
+    color: #1e293b;
+}
+
+.split-card .panel-left h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: #1e293b;
+}
+
+.split-card .panel-left .subtitle {
+    color: #666;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+}
+
+.split-card .panel-right {
+    width: 50%;
+    padding: 1.25rem;
+    background: #e9e9e9;
+}
+
+.split-card .panel-right img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    object-fit: cover;
+}
+
+/* ── Form inputs (light context — split card) ───────────── */
+.split-card .form-field {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.split-card .form-field input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: #e9e9e9;
+    font-size: 0.9rem;
+    color: #1e293b;
+    transition: background var(--transition), box-shadow var(--transition);
+    outline: none;
+}
+
+.split-card .form-field input:focus {
+    background: #dde0e8;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.split-card .form-field input::placeholder {
+    color: #999;
+}
+
+.split-card .form-field i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.split-card .form-field .toggle-pw {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    cursor: pointer;
+    pointer-events: all;
+    font-size: 0.9rem;
+    transition: color var(--transition);
+}
+
+.split-card .form-field .toggle-pw:hover {
+    color: #667eea;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--brand-grad);
+    color: white;
+    box-shadow: var(--shadow-btn);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(102, 126, 234, 0.5);
+}
+
+/* Light context primary (split card) */
+.btn-brand {
+    width: 100%;
+    padding: 14px;
+    background: #9b6b70;
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background var(--transition);
+}
+
+.btn-brand:hover {
+    background: #7e5559;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-subtle);
+}
+
+.btn-outline:hover {
+    background: var(--surface-2);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ── Social icons (split card) ───────────────────────────── */
+.social-icons {
+    display: flex;
+    gap: 0.875rem;
+    margin-top: 1.5rem;
+}
+
+.social-icon {
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 1rem;
+    color: #555;
+    transition: transform var(--transition), box-shadow var(--transition);
+    text-decoration: none;
+}
+
+.social-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Switch link (below form) ────────────────────────────── */
+.form-footer {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.form-footer a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+.form-footer a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* ── Alert / error ───────────────────────────────────────── */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-error {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.alert-success {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #86efac;
+}
+
+/* ── Split card extras (login / register) ──────────────── */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: #999;
+    text-decoration: none;
+    margin-bottom: 1.5rem;
+    transition: color var(--transition);
+}
+
+.back-link:hover {
+    color: #667eea;
+}
+
+.panel-brand {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity var(--transition), transform var(--transition);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
+}
+
+.btn-submit:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.form-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    color: #bbb;
+    font-size: 0.8rem;
+}
+
+.form-divider::before,
+.form-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+
+/* Right panel — dark gradient visual */
+.split-card .panel-right {
+    width: 50%;
+    background: linear-gradient(135deg, #0f0f23, #1a1a3e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+}
+
+.panel-right-content {
+    text-align: center;
+    color: white;
+}
+
+.panel-right-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.panel-right-content h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(45deg, #667eea, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.panel-right-content p {
+    font-size: 0.9rem;
+    color: #b0b0d0;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.panel-right-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.pr-stat-val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: white;
+}
+
+.pr-stat-lbl {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+/* ── Index page extras ───────────────────────────────────── */
+.index-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.75rem;
+    width: 100%;
+    max-width: 480px;
+}
+
+.glass-card .brand-icon {
+    font-size: 2.5rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: var(--brand-grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: white;
+}
+
+.index-logged-in {
+    margin-top: 1rem;
+    margin-bottom: 0;
+    font-size: 0.82rem;
+    color: var(--text-faint);
+}
+
+.index-logged-in strong {
+    color: var(--brand-from);
+}
+
+.index-features {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.index-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.index-feature i {
+    color: var(--brand-from);
+    font-size: 0.75rem;
+}
+
+.index-feature:hover {
+    background: rgba(102, 126, 234, 0.12);
+    border-color: rgba(102, 126, 234, 0.35);
+    color: white;
+}
+
+/* ── Password strength & match (register) ──────────────── */
+.pw-strength {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: -0.25rem 0 1rem;
+}
+
+.pw-strength-bar {
+    flex: 1;
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.pw-strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.pw-strength-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 44px;
+    text-align: right;
+}
+
+.pw-match-msg {
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin: -0.5rem 0 0.75rem;
+    min-height: 1.1rem;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .split-card {
+        flex-direction: column;
+        border-radius: var(--radius-lg);
+    }
+
+    .split-card .panel-left,
+    .split-card .panel-right {
+        width: 100%;
+    }
+
+    .split-card .panel-right {
+        display: none;
+        /* hide image panel on mobile */
+    }
+
+    .split-card .panel-left {
+        padding: 2rem 1.5rem;
+    }
+
+    .glass-card {
+        padding: 2rem 1.25rem;
+    }
+
+    .glass-card h1 {
+        font-size: 1.6rem;
+    }
+}

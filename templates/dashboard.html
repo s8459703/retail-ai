@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="data-categories" type="application/json">{{ categories     | tojson }}</script>
+    <script id="data-category-sales" type="application/json">{{ category_sales | tojson }}</script>
+    <script id="data-monthly-labels" type="application/json">{{ monthly_labels | tojson }}</script>
+    <script id="data-monthly-sales" type="application/json">{{ monthly_sales  | tojson }}</script>
+    <script id="data-gender-labels" type="application/json">{{ gender_labels  | tojson }}</script>
+    <script id="data-gender-values" type="application/json">{{ gender_values  | tojson }}</script>
+    <script id="data-city-labels" type="application/json">{{ city_labels    | tojson }}</script>
+    <script id="data-city-sales" type="application/json">{{ city_sales     | tojson }}</script>
+</head>
+
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+            <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+            <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+            <a href="/settings" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-date" id="topbarDate"></div>
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i> {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Row 1 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(total_sales) }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ "{:,}".format(total_orders) }}</div>
+                    <div class="stat-label">Total Transactions</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(avg_sales) }}</div>
+                    <div class="stat-label">Avg. Order Value</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value stat-value--sm">{{ best_product }}</div>
+                    <div class="stat-label">Top Category</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Row 2 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#22c55e,#16a34a);">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(max_sale) }}</div>
+                    <div class="stat-label">Highest Transaction</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#f59e0b,#d97706);">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(min_sale) }}</div>
+                    <div class="stat-label">Lowest Transaction</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#f093fb,#f5576c);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ avg_age }}</div>
+                    <div class="stat-label">Avg. Customer Age</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#4facfe,#00f2fe);">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value stat-value--sm">{{ city_labels[0] if city_labels else '—' }}</div>
+                    <div class="stat-label">Top City by Revenue</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Bar + Pie -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-bar"></i> Revenue by Category</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Category Distribution</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Gender + City -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="fas fa-venus-mars"></i> Sales by Gender</h3>
+                <canvas id="genderChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-map-marker-alt"></i> Revenue by City</h3>
+                <canvas id="cityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Monthly Sales Trend (2023–2024)</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+
+        <!-- Category Table -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-table"></i> Category Breakdown</h3>
+                <span class="table-count">{{ table_rows | length }} categories</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Category</th>
+                            <th>Total Revenue</th>
+                            <th>Transactions</th>
+                            <th>Avg. Order</th>
+                            <th>Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_rows %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><span class="category-badge">{{ row.category }}</span></td>
+                            <td class="text-highlight">₹{{ "{:,.0f}".format(row.total) }}</td>
+                            <td>{{ "{:,}".format(row.count) }}</td>
+                            <td>₹{{ "{:,.0f}".format(row.avg) }}</td>
+                            <td>{{ "{:.1f}".format(row.total / total_sales * 100) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const read = (id) => JSON.parse(document.getElementById(id)?.textContent || "[]");
+            const darkGrid = "rgba(255,255,255,0.05)";
+            const tickColor = "#888";
+            const legendOpts = { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } };
+
+            // Gender doughnut
+            const gLabels = read("data-gender-labels");
+            const gValues = read("data-gender-values");
+            if (document.getElementById("genderChart") && gLabels.length) {
+                new Chart(document.getElementById("genderChart"), {
+                    type: "doughnut",
+                    data: {
+                        labels: gLabels,
+                        datasets: [{ data: gValues, backgroundColor: ["#f093fb", "#4facfe"], borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }]
+                    },
+                    options: { responsive: true, plugins: { legend: legendOpts } }
+                });
+            }
+
+            // City bar chart
+            const cLabels = read("data-city-labels");
+            const cSales = read("data-city-sales");
+            if (document.getElementById("cityChart") && cLabels.length) {
+                new Chart(document.getElementById("cityChart"), {
+                    type: "bar",
+                    data: {
+                        labels: cLabels,
+                        datasets: [{ label: "Revenue (₹)", data: cSales, backgroundColor: "rgba(79,172,254,0.75)", borderColor: "#4facfe", borderWidth: 1, borderRadius: 6 }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: legendOpts },
+                        scales: {
+                            x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
+                            y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

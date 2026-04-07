@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Plans — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/upload" class="nav-item">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+            <a href="{{ url_for('predict') }}" class="nav-item">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a href="/future" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Forecast
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-gear"></i> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-crown"></i> Premium Plans</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <div class="page-header">
+            <h1><i class="fas fa-crown"></i> Upgrade Your Plan</h1>
+            <p>Unlock advanced AI models, unlimited forecasts, and priority support for your retail business.</p>
+        </div>
+
+        <!-- Pricing cards -->
+        <div class="pricing-grid">
+
+            <!-- Basic -->
+            <div class="plan-card">
+                <div class="plan-icon plan-icon--basic">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="plan-name">Basic</div>
+                <div class="plan-price">Free</div>
+                <div class="plan-period">forever</div>
+                <ul class="plan-features">
+                    <li class="feat-yes"><i class="fas fa-check"></i> 5 Forecasts / Month</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Basic Analytics Dashboard</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> CSV Upload (1 file)</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Email Support</li>
+                    <li class="feat-no"><i class="fas fa-xmark"></i> Custom ML Models</li>
+                    <li class="feat-no"><i class="fas fa-xmark"></i> API Access</li>
+                    <li class="feat-no"><i class="fas fa-xmark"></i> Priority Support</li>
+                </ul>
+                <button class="btn secondary plan-btn" disabled>
+                    <i class="fas fa-check-circle"></i> Current Plan
+                </button>
+            </div>
+
+            <!-- Pro (featured) -->
+            <div class="plan-card plan-card--featured">
+                <div class="plan-popular-badge">Most Popular</div>
+                <div class="plan-icon plan-icon--pro">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <div class="plan-name">Pro</div>
+                <div class="plan-price">₹299</div>
+                <div class="plan-period">per month</div>
+                <ul class="plan-features">
+                    <li class="feat-yes"><i class="fas fa-check"></i> Unlimited Forecasts</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Advanced Analytics</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Unlimited CSV Uploads</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Custom ML Models</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> REST API Access</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Priority Support</li>
+                    <li class="feat-no"><i class="fas fa-xmark"></i> White-label</li>
+                </ul>
+                <button class="btn primary plan-btn">
+                    <i class="fas fa-bolt"></i> Upgrade Now
+                </button>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="plan-card">
+                <div class="plan-icon plan-icon--enterprise">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price">Custom</div>
+                <div class="plan-period">contact us</div>
+                <ul class="plan-features">
+                    <li class="feat-yes"><i class="fas fa-check"></i> Everything in Pro</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> White-label Solution</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> On-premise Deployment</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Dedicated Account Manager</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> SLA Guarantee</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> Custom Integrations</li>
+                    <li class="feat-yes"><i class="fas fa-check"></i> 24/7 Phone Support</li>
+                </ul>
+                <button class="btn secondary plan-btn">
+                    <i class="fas fa-envelope"></i> Contact Sales
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Feature comparison table -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-table-columns"></i> Feature Comparison</h3>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th style="text-align:center;">Basic</th>
+                            <th style="text-align:center;">Pro</th>
+                            <th style="text-align:center;">Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Monthly Forecasts</td>
+                            <td style="text-align:center;">5</td>
+                            <td style="text-align:center;" class="text-highlight">Unlimited</td>
+                            <td style="text-align:center;" class="text-highlight">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>CSV Uploads</td>
+                            <td style="text-align:center;">1</td>
+                            <td style="text-align:center;" class="text-highlight">Unlimited</td>
+                            <td style="text-align:center;" class="text-highlight">Unlimited</td>
+                        </tr>
+                        <tr>
+                            <td>Custom ML Models</td>
+                            <td style="text-align:center;"><i class="fas fa-xmark" style="color:#ef4444;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-check" style="color:#22c55e;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-check" style="color:#22c55e;"></i></td>
+                        </tr>
+                        <tr>
+                            <td>API Access</td>
+                            <td style="text-align:center;"><i class="fas fa-xmark" style="color:#ef4444;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-check" style="color:#22c55e;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-check" style="color:#22c55e;"></i></td>
+                        </tr>
+                        <tr>
+                            <td>White-label</td>
+                            <td style="text-align:center;"><i class="fas fa-xmark" style="color:#ef4444;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-xmark" style="color:#ef4444;"></i></td>
+                            <td style="text-align:center;"><i class="fas fa-check" style="color:#22c55e;"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Support</td>
+                            <td style="text-align:center;">Email</td>
+                            <td style="text-align:center;" class="text-highlight">Priority</td>
+                            <td style="text-align:center;" class="text-highlight">24/7 Dedicated</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecast — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="data-forecast-labels" type="application/json">{{ forecast_labels | tojson }}</script>
+    <script id="data-forecast-values" type="application/json">{{ forecast_values | tojson }}</script>
+    <script id="data-history-labels" type="application/json">{{ history_labels  | tojson }}</script>
+    <script id="data-history-values" type="application/json">{{ history_values  | tojson }}</script>
+</head>
+
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/upload" class="nav-item">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+            <a href="{{ url_for('predict') }}" class="nav-item">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a href="/future" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Forecast
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-gear"></i> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-chart-bar"></i> Sales Forecast</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <div class="page-header">
+            <h1><i class="fas fa-chart-bar"></i> Future Sales Forecast</h1>
+            <p>Next {{ forecast_steps }} transaction predictions using linear regression trained on your full dataset.
+            </p>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(forecast_total) }}</div>
+                    <div class="stat-label">Forecast Total</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(forecast_avg) }}</div>
+                    <div class="stat-label">Forecast Avg.</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(forecast_max) }}</div>
+                    <div class="stat-label">Forecast High</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹{{ "{:,.0f}".format(forecast_min) }}</div>
+                    <div class="stat-label">Forecast Low</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forecast chart -->
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Historical vs Forecasted Sales</h3>
+            <canvas id="forecastChart"></canvas>
+        </div>
+
+        <!-- Forecast table -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-table"></i> Forecast Breakdown</h3>
+                <span class="table-count">{{ forecast_steps }} predictions</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Transaction</th>
+                            <th>Predicted Value</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label, value in forecast_rows %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ label }}</td>
+                            <td class="text-highlight">₹{{ "{:,.2f}".format(value) }}</td>
+                            <td>
+                                {% if loop.index > 1 and value > forecast_values[loop.index - 2] %}
+                                <span class="stat-change up"><i class="fas fa-arrow-up"></i> Up</span>
+                                {% elif loop.index > 1 and value < forecast_values[loop.index - 2] %} <span
+                                    class="stat-change down"><i class="fas fa-arrow-down"></i> Down</span>
+                                    {% else %}
+                                    <span style="color:#888;">—</span>
+                                    {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const read = (id) => JSON.parse(document.getElementById(id)?.textContent || "[]");
+
+            const histLabels = read("data-history-labels");
+            const histValues = read("data-history-values");
+            const fcstLabels = read("data-forecast-labels");
+            const fcstValues = read("data-forecast-values");
+
+            const allLabels = [...histLabels, ...fcstLabels];
+            const darkGrid = "rgba(255,255,255,0.05)";
+            const tickColor = "#888";
+
+            new Chart(document.getElementById("forecastChart"), {
+                type: "line",
+                data: {
+                    labels: allLabels,
+                    datasets: [
+                        {
+                            label: "Historical ($)",
+                            data: [...histValues, ...Array(fcstLabels.length).fill(null)],
+                            borderColor: "#667eea",
+                            backgroundColor: "rgba(102,126,234,0.1)",
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            tension: 0.4,
+                            fill: true,
+                        },
+                        {
+                            label: "Forecast (₹)",
+                            data: [...Array(histLabels.length).fill(null), ...fcstValues],
+                            borderColor: "#f093fb",
+                            backgroundColor: "rgba(240,147,251,0.1)",
+                            borderWidth: 2,
+                            borderDash: [6, 3],
+                            pointRadius: 4,
+                            pointBackgroundColor: "#f093fb",
+                            tension: 0.4,
+                            fill: true,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    spanGaps: false,
+                    plugins: {
+                        legend: { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } }
+                    },
+                    scales: {
+                        x: { ticks: { color: tickColor, maxTicksLimit: 16 }, grid: { color: darkGrid } },
+                        y: {
+                            ticks: { color: tickColor, callback: (v) => "₹" + v.toLocaleString() },
+                            grid: { color: darkGrid }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

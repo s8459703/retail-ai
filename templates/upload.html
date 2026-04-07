@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Data — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+            <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+            <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+            <a href="/settings" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <div class="topbar-left"><h2><i class="fas fa-upload"></i> Upload Data</h2></div>
+            <div class="topbar-right">
+                <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h1><i class="fas fa-upload"></i> Upload Sales Data</h1>
+            <p>Upload a CSV file to replace the active dataset. All charts, predictions, and forecasts will use your data immediately.</p>
+        </div>
+
+        {% if using_custom %}
+        <div class="alert" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;margin-bottom:1.5rem;">
+            <i class="fas fa-circle-check"></i>
+            You are currently using an <strong>uploaded dataset</strong>.
+            <a href="{{ url_for('upload_reset') }}" style="color:#86efac;text-decoration:underline;margin-left:8px;">
+                <i class="fas fa-rotate-left"></i> Revert to default dataset
+            </a>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;margin-bottom:1.5rem;">
+            <i class="fas fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;margin-bottom:1.5rem;">
+            <i class="fas fa-circle-check"></i> {{ success }}
+        </div>
+        {% endif %}
+
+        <div class="upload-layout">
+
+            <!-- Upload form -->
+            <div class="chart-card upload-card">
+                <h3><i class="fas fa-cloud-arrow-up"></i> Select File</h3>
+
+                <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="uploadForm">
+
+                    <div class="drop-zone" id="dropZone" onclick="document.getElementById('dataFile').click()">
+                        <div class="drop-zone-icon"><i class="fas fa-cloud-arrow-up"></i></div>
+                        <div class="drop-zone-text">
+                            <strong>Drag &amp; drop your CSV here</strong>
+                            <span>or click to browse files</span>
+                        </div>
+                        <input type="file" name="datafile" id="dataFile" accept=".csv" hidden>
+                    </div>
+
+                    <div class="upload-file-info" id="fileInfo" style="display:none;">
+                        <i class="fas fa-file-csv"></i>
+                        <span id="fileName"></span>
+                        <button type="button" class="upload-clear-btn" id="clearFile">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="upload-actions" style="margin-top:1rem;">
+                        <button type="submit" class="btn primary" id="uploadBtn">
+                            <i class="fas fa-upload"></i> Upload &amp; Activate
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn secondary">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Requirements -->
+            <div class="chart-card">
+                <h3><i class="fas fa-circle-info"></i> CSV Requirements</h3>
+                <p class="card-desc">Your file must be a <strong>.csv</strong> with these required columns:</p>
+                <div class="upload-columns">
+                    {% set cols = [
+                        ('Transaction Id','Integer',''),
+                        ('Customer Id','Integer',''),
+                        ('Day / Month / Year','Integer',''),
+                        ('Place','String',''),
+                        ('Gender','String',''),
+                        ('Age','Integer',''),
+                        ('Product Category','String','required'),
+                        ('Quantity','Integer',''),
+                        ('Price Per Unit','Float',''),
+                        ('Total Amount','Float','required'),
+                        ('Year','Integer','required'),
+                        ('Month','Integer','required'),
+                    ] %}
+                    {% for name, typ, req in cols %}
+                    <div class="upload-col-item {{ 'upload-col-item--highlight' if req == 'required' else '' }}">
+                        <span class="upload-col-name">{{ name }}</span>
+                        <span class="upload-col-type">{{ typ }}{% if req %} — {{ req }}{% endif %}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- File info summary after upload -->
+        {% if file_info %}
+        <div class="stats-grid" style="margin-bottom:1.5rem;">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-csv"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" style="font-size:1rem;">{{ file_info.name }}</div>
+                    <div class="stat-label">Uploaded File</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ "{:,}".format(file_info.rows) }}</div>
+                    <div class="stat-label">Rows Loaded</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-table-columns"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ file_info.cols }}</div>
+                    <div class="stat-label">Columns Detected</div>
+                </div>
+            </div>
+            {% if file_info.total %}
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(file_info.total) }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Preview table -->
+        {% if preview_cols %}
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-table"></i> Data Preview</h3>
+                <span class="table-count">First 10 rows</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>{% for col in preview_cols %}<th>{{ col }}</th>{% endfor %}</tr>
+                    </thead>
+                    <tbody>
+                        {% for row in preview_rows %}
+                        <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        const fileInput = document.getElementById("dataFile");
+        const fileInfo  = document.getElementById("fileInfo");
+        const fileNameEl = document.getElementById("fileName");
+        const dropZone  = document.getElementById("dropZone");
+
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files?.length) {
+                fileNameEl.textContent = fileInput.files[0].name;
+                fileInfo.style.display = "flex";
+                dropZone.classList.add("drop-zone--has-file");
+            }
+        });
+
+        document.getElementById("clearFile").addEventListener("click", (e) => {
+            e.stopPropagation();
+            fileInput.value = "";
+            fileInfo.style.display = "none";
+            dropZone.classList.remove("drop-zone--has-file");
+        });
+
+        // Drag and drop
+        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("drop-zone--active"); });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drop-zone--active"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("drop-zone--active");
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                fileNameEl.textContent = file.name;
+                fileInfo.style.display = "flex";
+                dropZone.classList.add("drop-zone--has-file");
+            }
+        });
+
+        document.getElementById("uploadForm").addEventListener("submit", () => {
+            const btn = document.getElementById("uploadBtn");
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading…`;
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>

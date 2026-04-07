@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/upload" class="nav-item">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+            <a href="{{ url_for('predict') }}" class="nav-item">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a href="/future" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Forecast
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-gear"></i> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-house"></i> Home</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome banner -->
+        <div class="welcome-banner">
+            <div class="welcome-banner-text">
+                <h1>Welcome back, {{ session['user'] }}! 👋</h1>
+                <p>Your retail dataset has <strong>1,000 transactions</strong> across <strong>3 categories</strong> and <strong>6 cities</strong> — totalling <strong>₹26,98,170</strong> in revenue (2023–2024).</p>
+            </div>
+            <a href="{{ url_for('dashboard') }}" class="btn primary">
+                <i class="fas fa-chart-line"></i> Go to Dashboard
+            </a>
+        </div>
+
+        <!-- Dataset snapshot -->
+        <div class="section-heading">Dataset Snapshot</div>
+        <div class="stats-grid" style="margin-bottom:2rem;">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">1,000</div>
+                    <div class="stat-label">Total Transactions</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹26.9L</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹2,698</div>
+                    <div class="stat-label">Avg Order Value</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">Coimbatore</div>
+                    <div class="stat-label">Top City by Revenue</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="section-heading">Quick Actions</div>
+        <div class="quick-actions-grid">
+
+            <a href="{{ url_for('dashboard') }}" class="quick-action-card">
+                <div class="qa-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">Dashboard</div>
+                    <div class="qa-desc">View category breakdown (Beauty · Clothing · Electronics), monthly sales trend, and revenue summary across 2023–2024.</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+            <a href="{{ url_for('predict') }}" class="quick-action-card">
+                <div class="qa-icon"><i class="fas fa-brain"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">ML Prediction</div>
+                    <div class="qa-desc">Run a linear regression model trained on 1,000 transactions to predict the next order value (range: ₹100 – ₹7,960).</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+            <a href="/future" class="quick-action-card">
+                <div class="qa-icon"><i class="fas fa-chart-bar"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">10-Step Forecast</div>
+                    <div class="qa-desc">See the next 10 predicted transactions with trend indicators, forecast total, average, high, and low values.</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+            <a href="/upload" class="quick-action-card">
+                <div class="qa-icon"><i class="fas fa-upload"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">Upload Data</div>
+                    <div class="qa-desc">Drag and drop a CSV with the same 12-column schema (Transaction Id, Product Category, Total Amount, etc.) to preview your data.</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+            <a href="/settings" class="quick-action-card">
+                <div class="qa-icon"><i class="fas fa-gear"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">Settings</div>
+                    <div class="qa-desc">Manage notifications, theme preferences, forecast steps (10/20/30), and API key configuration.</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="quick-action-card quick-action-card--danger">
+                <div class="qa-icon"><i class="fas fa-right-from-bracket"></i></div>
+                <div class="qa-info">
+                    <div class="qa-title">Logout</div>
+                    <div class="qa-desc">Sign out of your Retail AI session securely.</div>
+                </div>
+                <i class="fas fa-arrow-right qa-arrow"></i>
+            </a>
+
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+
+</html>

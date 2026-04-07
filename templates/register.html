@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="page-center">
+        <div class="split-card">
+
+            <!-- Left panel — form -->
+            <div class="panel-left">
+
+                <a href="{{ url_for('welcome') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+
+                <div class="panel-brand">
+                    <i class="fas fa-store"></i> Retail AI
+                </div>
+
+                <h1>Create account</h1>
+                <p class="subtitle">Start forecasting smarter today — it's free</p>
+
+                {% if error %}
+                <div class="alert alert-error">
+                    <i class="fas fa-circle-exclamation"></i> {{ error }}
+                </div>
+                {% endif %}
+
+                {% if success %}
+                <div class="alert alert-success">
+                    <i class="fas fa-circle-check"></i> {{ success }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('register') }}" novalidate id="registerForm">
+
+                    <div class="form-field">
+                        <i class="fas fa-user"></i>
+                        <input
+                            type="text"
+                            name="fullname"
+                            placeholder="Full Name"
+                            required
+                            autocomplete="name"
+                            autofocus>
+                    </div>
+
+                    <div class="form-field">
+                        <i class="fas fa-envelope"></i>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email Address"
+                            required
+                            autocomplete="email">
+                    </div>
+
+                    <div class="form-field">
+                        <i class="fas fa-building"></i>
+                        <input
+                            type="text"
+                            name="business"
+                            placeholder="Business Name (optional)"
+                            autocomplete="organization">
+                    </div>
+
+                    <div class="form-field">
+                        <i class="fas fa-lock"></i>
+                        <input
+                            type="password"
+                            name="password"
+                            id="regPassword"
+                            placeholder="Password"
+                            required
+                            autocomplete="new-password">
+                        <span class="toggle-pw" id="togglePw" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </span>
+                    </div>
+
+                    <!-- Password strength bar -->
+                    <div class="pw-strength" id="pwStrength">
+                        <div class="pw-strength-bar">
+                            <div class="pw-strength-fill" id="pwFill"></div>
+                        </div>
+                        <span class="pw-strength-label" id="pwLabel"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <i class="fas fa-lock-open"></i>
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            id="confirmPassword"
+                            placeholder="Confirm Password"
+                            required
+                            autocomplete="new-password">
+                    </div>
+
+                    <div class="pw-match-msg" id="pwMatchMsg"></div>
+
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+
+                </form>
+
+                <p class="form-footer">
+                    Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+                </p>
+
+            </div>
+
+            <!-- Right panel — visual -->
+            <div class="panel-right">
+                <div class="panel-right-content">
+                    <div class="panel-right-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h2>Join Retail AI</h2>
+                    <p>Analyze demand patterns, predict future sales, and make smarter inventory decisions.</p>
+                    <div class="panel-right-stats">
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">ML</div>
+                            <div class="pr-stat-lbl">Powered</div>
+                        </div>
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">Free</div>
+                            <div class="pr-stat-lbl">To Start</div>
+                        </div>
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">Live</div>
+                            <div class="pr-stat-lbl">Dashboard</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const pwInput      = document.getElementById("regPassword");
+        const confirmInput = document.getElementById("confirmPassword");
+        const pwFill       = document.getElementById("pwFill");
+        const pwLabel      = document.getElementById("pwLabel");
+        const pwMatchMsg   = document.getElementById("pwMatchMsg");
+        const submitBtn    = document.getElementById("submitBtn");
+        const eyeIcon      = document.getElementById("eyeIcon");
+
+        // Password visibility toggle
+        document.getElementById("togglePw").addEventListener("click", () => {
+            const hidden = pwInput.type === "password";
+            pwInput.type   = hidden ? "text" : "password";
+            eyeIcon.className = hidden ? "fas fa-eye-slash" : "fas fa-eye";
+        });
+
+        // Password strength
+        pwInput.addEventListener("input", () => {
+            const val = pwInput.value;
+            let score = 0;
+            if (val.length >= 8)              score++;
+            if (/[A-Z]/.test(val))            score++;
+            if (/[0-9]/.test(val))            score++;
+            if (/[^A-Za-z0-9]/.test(val))     score++;
+
+            const levels = [
+                { pct: "0%",   color: "transparent", label: "" },
+                { pct: "25%",  color: "#ef4444",      label: "Weak" },
+                { pct: "50%",  color: "#f59e0b",      label: "Fair" },
+                { pct: "75%",  color: "#667eea",      label: "Good" },
+                { pct: "100%", color: "#22c55e",      label: "Strong" },
+            ];
+
+            const lvl = levels[score];
+            pwFill.style.width       = lvl.pct;
+            pwFill.style.background  = lvl.color;
+            pwLabel.textContent      = lvl.label;
+            pwLabel.style.color      = lvl.color;
+
+            checkMatch();
+        });
+
+        // Confirm password match
+        confirmInput.addEventListener("input", checkMatch);
+
+        function checkMatch() {
+            const pw  = pwInput.value;
+            const cpw = confirmInput.value;
+            if (!cpw) {
+                pwMatchMsg.textContent = "";
+                return;
+            }
+            if (pw === cpw) {
+                pwMatchMsg.textContent = "✓ Passwords match";
+                pwMatchMsg.style.color = "#22c55e";
+            } else {
+                pwMatchMsg.textContent = "✗ Passwords do not match";
+                pwMatchMsg.style.color = "#ef4444";
+            }
+        }
+
+        // Prevent submit if passwords don't match
+        document.getElementById("registerForm").addEventListener("submit", (e) => {
+            if (pwInput.value !== confirmInput.value) {
+                e.preventDefault();
+                pwMatchMsg.textContent = "✗ Passwords do not match";
+                pwMatchMsg.style.color = "#ef4444";
+                confirmInput.focus();
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Creating…`;
+        });
+    </script>
+</body>
+
+</html>

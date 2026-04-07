@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="page-center">
+        <div class="split-card">
+
+            <!-- Left panel — form -->
+            <div class="panel-left">
+
+                <a href="{{ url_for('home') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+
+                <div class="panel-brand">
+                    <i class="fas fa-store"></i> Retail AI
+                </div>
+
+                <h1>Welcome back</h1>
+                <p class="subtitle">Sign in to your account to continue</p>
+
+                {% if error %}
+                <div class="alert alert-error">
+                    <i class="fas fa-circle-exclamation"></i> {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('login') }}" novalidate>
+                    <div class="form-field">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" placeholder="Username" required autocomplete="username"
+                            autofocus>
+                    </div>
+
+                    <div class="form-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="loginPassword" placeholder="Password" required
+                            autocomplete="current-password">
+                        <span class="toggle-pw" id="togglePw" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </span>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-right-to-bracket"></i> Sign In
+                    </button>
+                </form>
+
+                <div class="form-divider"><span>or</span></div>
+
+                <div class="social-icons">
+                    <a href="#" class="social-icon" title="Continue with Google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                    <a href="#" class="social-icon" title="Continue with GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="social-icon" title="Continue with Microsoft">
+                        <i class="fab fa-microsoft"></i>
+                    </a>
+                </div>
+
+                <p class="form-footer">
+                    Don't have an account? <a href="{{ url_for('register') }}">Create one</a>
+                </p>
+
+            </div>
+
+            <!-- Right panel — visual -->
+            <div class="panel-right">
+                <div class="panel-right-content">
+                    <div class="panel-right-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h2>Retail AI</h2>
+                    <p>Smart Sales Forecasting &amp; Analytics powered by machine learning</p>
+                    <div class="panel-right-stats">
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">1,000</div>
+                            <div class="pr-stat-lbl">Transactions</div>
+                        </div>
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">3</div>
+                            <div class="pr-stat-lbl">Categories</div>
+                        </div>
+                        <div class="pr-stat">
+                            <div class="pr-stat-val">6</div>
+                            <div class="pr-stat-lbl">Cities</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1.5rem; font-size:0.78rem; color:#666; line-height:1.8;">
+                        <div><i class="fas fa-tag" style="color:#667eea; margin-right:6px;"></i> Categories: Beauty · Clothing · Electronics</div>
+                        <div><i class="fas fa-map-marker-alt" style="color:#667eea; margin-right:6px;"></i> Cities: Delhi · Mumbai · Bangalore · Chennai · Hyderabad · Coimbatore</div>
+                        <div><i class="fas fa-calendar" style="color:#667eea; margin-right:6px;"></i> Period: 2023 – 2024</div>
+                        <div><i class="fas fa-rupee-sign" style="color:#667eea; margin-right:6px;"></i> Total Revenue: ₹26,98,170</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("togglePw").addEventListener("click", () => {
+            const input = document.getElementById("loginPassword");
+            const icon = document.getElementById("eyeIcon");
+            const hidden = input.type === "password";
+            input.type = hidden ? "text" : "password";
+            icon.className = hidden ? "fas fa-eye-slash" : "fas fa-eye";
+        });
+    </script>
+</body>
+
+</html>

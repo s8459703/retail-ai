@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-store"></i> Retail AI
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="/upload" class="nav-item">
+                <i class="fas fa-upload"></i> Upload Data
+            </a>
+            <a href="{{ url_for('predict') }}" class="nav-item">
+                <i class="fas fa-brain"></i> Prediction
+            </a>
+            <a href="/future" class="nav-item">
+                <i class="fas fa-chart-bar"></i> Forecast
+            </a>
+            <a href="/settings" class="nav-item">
+                <i class="fas fa-gear"></i> Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-gear"></i> Settings</h2>
+            </div>
+            <div class="topbar-right">
+                <a href="{{ url_for('profile') }}" class="btn secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session['user'] }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <div class="page-header">
+            <h1><i class="fas fa-gear"></i> Settings</h1>
+            <p>Manage your preferences, notifications, and account configuration.</p>
+        </div>
+
+        {% if success %}
+        <div class="alert" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:#86efac;">
+            <i class="fas fa-circle-check"></i> {{ success }}
+        </div>
+        {% endif %}
+        {% if error %}
+        <div class="alert" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;">
+            <i class="fas fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form id="settingsForm" data-settings>
+
+            <!-- Notifications -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-bell"></i>
+                    <div>
+                        <div class="settings-card-title">Notifications</div>
+                        <div class="settings-card-desc">Control how and when you receive alerts</div>
+                    </div>
+                </div>
+                <div class="settings-rows">
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Email Alerts</div>
+                            <div class="settings-row-desc">Receive forecast summaries by email</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email-alerts" checked>
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Prediction Alerts</div>
+                            <div class="settings-row-desc">Notify when a new prediction is ready</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="prediction-alerts" checked>
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Weekly Report</div>
+                            <div class="settings-row-desc">Get a weekly sales summary digest</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="weekly-report">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appearance -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-palette"></i>
+                    <div>
+                        <div class="settings-card-title">Appearance</div>
+                        <div class="settings-card-desc">Customize the look of your dashboard</div>
+                    </div>
+                </div>
+                <div class="settings-rows">
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Theme</div>
+                            <div class="settings-row-desc">Choose your preferred colour scheme</div>
+                        </div>
+                        <div class="theme-btn-group">
+                            <button type="button" class="theme-btn active" data-theme="dark">
+                                <i class="fas fa-moon"></i> Dark
+                            </button>
+                            <button type="button" class="theme-btn" data-theme="light">
+                                <i class="fas fa-sun"></i> Light
+                            </button>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Compact Sidebar</div>
+                            <div class="settings-row-desc">Show icons only in the sidebar</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="compact-sidebar">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Reduce Motion</div>
+                            <div class="settings-row-desc">Disable animations and transitions</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="reduce-motion">
+                            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data & Forecasting -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-database"></i>
+                    <div>
+                        <div class="settings-card-title">Data &amp; Forecasting</div>
+                        <div class="settings-card-desc">Configure how data is processed and displayed</div>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <input type="hidden" name="action" value="save_forecast_steps">
+                    <div class="settings-rows">
+                        <div class="settings-row">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Forecast Steps</div>
+                                <div class="settings-row-desc">Number of future transactions to predict (currently {{ forecast_steps }})</div>
+                            </div>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <div class="theme-btn-group">
+                                    {% for s in [10, 20, 30] %}
+                                    <button type="submit" name="forecast_steps" value="{{ s }}"
+                                        class="theme-btn {{ 'active' if forecast_steps == s else '' }}">
+                                        {{ s }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-lock"></i>
+                    <div>
+                        <div class="settings-card-title">Change Password</div>
+                        <div class="settings-card-desc">Update your account password</div>
+                    </div>
+                </div>
+                <form method="POST" action="{{ url_for('settings') }}">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="settings-rows">
+                        <div class="settings-row settings-row--col">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Current Password</div>
+                            </div>
+                            <input type="password" name="current_password" class="settings-input" placeholder="Enter current password" required autocomplete="current-password">
+                        </div>
+                        <div class="settings-row settings-row--col">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">New Password</div>
+                            </div>
+                            <input type="password" name="new_password" class="settings-input" placeholder="Min. 6 characters" required autocomplete="new-password">
+                        </div>
+                        <div class="settings-row settings-row--col">
+                            <div class="settings-row-info">
+                                <div class="settings-row-label">Confirm New Password</div>
+                            </div>
+                            <input type="password" name="confirm_password" class="settings-input" placeholder="Repeat new password" required autocomplete="new-password">
+                        </div>
+                        <div class="settings-row">
+                            <div></div>
+                            <button type="submit" class="btn primary">
+                                <i class="fas fa-floppy-disk"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- API & Integrations -->
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i class="fas fa-plug"></i>
+                    <div>
+                        <div class="settings-card-title">API &amp; Integrations</div>
+                        <div class="settings-card-desc">Manage API keys and external connections</div>
+                    </div>
+                </div>
+                <div class="settings-rows">
+                    <div class="settings-row settings-row--col">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">ML API Key</div>
+                            <div class="settings-row-desc">Used for external model integrations</div>
+                        </div>
+                        <div class="settings-input-row">
+                            <input
+                                type="password"
+                                id="apiKeyInput"
+                                class="settings-input"
+                                placeholder="sk-••••••••••••••••"
+                                autocomplete="off">
+                            <button type="button" class="btn secondary settings-input-btn" id="toggleApiKey">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="settings-row settings-row--col">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Webhook URL</div>
+                            <div class="settings-row-desc">POST forecast results to your endpoint</div>
+                        </div>
+                        <input
+                            type="url"
+                            class="settings-input"
+                            placeholder="https://your-endpoint.com/webhook">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger zone -->
+            <div class="settings-card settings-card--danger">
+                <div class="settings-card-header">
+                    <i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i>
+                    <div>
+                        <div class="settings-card-title" style="color:#fca5a5;">Danger Zone</div>
+                        <div class="settings-card-desc">Irreversible actions — proceed with caution</div>
+                    </div>
+                </div>
+                <div class="settings-rows">
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Clear Local Preferences</div>
+                            <div class="settings-row-desc">Resets all saved toggles and theme to defaults</div>
+                        </div>
+                        <button type="button" class="btn secondary" id="clearPrefsBtn"
+                            style="border-color:rgba(239,68,68,0.4); color:#fca5a5;">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <div class="settings-row-label">Sign Out</div>
+                            <div class="settings-row-desc">Logs you out and clears all session data</div>
+                        </div>
+                        <a href="{{ url_for('logout') }}" class="btn secondary"
+                            style="border-color:rgba(239,68,68,0.4); color:#fca5a5;">
+                            <i class="fas fa-right-from-bracket"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save -->
+            <div class="settings-save-row">
+                <button type="submit" class="btn primary" id="saveSettingsBtn">
+                    <i class="fas fa-floppy-disk"></i> Save Settings
+                </button>
+                <span class="settings-save-hint">Toggles and theme are saved automatically to your browser</span>
+            </div>
+
+        </form>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // API key visibility toggle
+        document.getElementById("toggleApiKey").addEventListener("click", () => {
+            const input = document.getElementById("apiKeyInput");
+            const icon  = document.querySelector("#toggleApiKey i");
+            const hidden = input.type === "password";
+            input.type     = hidden ? "text" : "password";
+            icon.className = hidden ? "fas fa-eye-slash" : "fas fa-eye";
+        });
+
+        // Clear all saved preferences
+        document.getElementById("clearPrefsBtn").addEventListener("click", () => {
+            const keys = Object.keys(localStorage).filter(k => k.startsWith("retailai-"));
+            keys.forEach(k => localStorage.removeItem(k));
+            showToast("Preferences cleared. Reloading…", "info");
+            setTimeout(() => location.reload(), 1200);
+        });
+
+        // Forecast steps buttons
+        document.querySelectorAll("[data-steps]").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll("[data-steps]").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                localStorage.setItem("retailai-forecast-steps", btn.dataset.steps);
+            });
+        });
+
+        // Restore forecast steps
+        const savedSteps = localStorage.getItem("retailai-forecast-steps");
+        if (savedSteps) {
+            document.querySelectorAll("[data-steps]").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.steps === savedSteps);
+            });
+        }
+    </script>
+
+</body>
+</html>
