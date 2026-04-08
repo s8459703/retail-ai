@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category }} — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="data-city-labels"    type="application/json">{{ city_labels    | tojson }}</script>
+    <script id="data-city-sales"     type="application/json">{{ city_sales     | tojson }}</script>
+    <script id="data-gender-labels"  type="application/json">{{ gender_labels  | tojson }}</script>
+    <script id="data-gender-values"  type="application/json">{{ gender_values  | tojson }}</script>
+    <script id="data-monthly-labels" type="application/json">{{ monthly_labels | tojson }}</script>
+    <script id="data-monthly-sales"  type="application/json">{{ monthly_sales  | tojson }}</script>
+</head>
+<body>
+
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+            <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+            <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+
+            <!-- Category links -->
+            <div style="padding:0.5rem 1.25rem;font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.5rem;">
+                Categories
+            </div>
+            {% for cat in all_categories %}
+            <a href="{{ url_for('category', category=cat) }}"
+               class="nav-item {{ 'active' if cat == category else '' }}">
+                <i class="fas fa-tag"></i> {{ cat }}
+            </a>
+            {% endfor %}
+
+            <a href="/settings" class="nav-item" style="margin-top:0.5rem;"><i class="fas fa-gear"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="avatar">{{ session['user'][0].upper() }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['user'] }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-tag"></i> {{ category }}</h2>
+            </div>
+            <div class="topbar-right">
+                <!-- Category switcher -->
+                {% for cat in all_categories %}
+                <a href="{{ url_for('category', category=cat) }}"
+                   class="btn {{ 'primary' if cat == category else 'secondary' }}"
+                   style="padding:0.5rem 1rem;font-size:0.85rem;">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+                <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h1><i class="fas fa-tag"></i> {{ category }} Analysis</h1>
+            <p>Detailed breakdown of all <strong>{{ "{:,}".format(total_orders) }}</strong> transactions in the {{ category }} category.</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(total_sales) }}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ "{:,}".format(total_orders) }}</div>
+                    <div class="stat-label">Transactions</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(avg_order) }}</div>
+                    <div class="stat-label">Avg. Order Value</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#22c55e,#16a34a);">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(max_order) }}</div>
+                    <div class="stat-label">Highest Order</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#f59e0b,#d97706);">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">${{ "{:,.0f}".format(min_order) }}</div>
+                    <div class="stat-label">Lowest Order</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="fas fa-map-marker-alt"></i> Revenue by City</h3>
+                <canvas id="cityChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-venus-mars"></i> Sales by Gender</h3>
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Monthly Sales Trend — {{ category }}</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-table"></i> Recent Transactions</h3>
+                <span class="table-count">Last {{ recent | length }} records</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Txn ID</th>
+                            <th>Date</th>
+                            <th>City</th>
+                            <th>Gender</th>
+                            <th>Age</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in recent %}
+                        <tr>
+                            <td>#{{ row['Transaction Id'] }}</td>
+                            <td>{{ row['Day'] }}/{{ row['Month'] }}/{{ row['Year'] }}</td>
+                            <td>{{ row['Place'] }}</td>
+                            <td>{{ row['Gender'] }}</td>
+                            <td>{{ row['Age'] }}</td>
+                            <td>{{ row['Quantity'] }}</td>
+                            <td>${{ "{:,.0f}".format(row['Price Per Unit']) }}</td>
+                            <td class="text-highlight">${{ "{:,.0f}".format(row['Total Amount']) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const read = id => JSON.parse(document.getElementById(id)?.textContent || "[]");
+        const darkGrid  = "rgba(255,255,255,0.05)";
+        const tickColor = "#888";
+        const legendOpts = { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } };
+
+        // City bar chart
+        new Chart(document.getElementById("cityChart"), {
+            type: "bar",
+            data: {
+                labels: read("data-city-labels"),
+                datasets: [{ label: "Revenue ($)", data: read("data-city-sales"),
+                    backgroundColor: "rgba(102,126,234,0.75)", borderColor: "#667eea",
+                    borderWidth: 1, borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { legend: legendOpts },
+                scales: {
+                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
+                    y: { ticks: { color: tickColor, callback: v => "$" + v.toLocaleString() }, grid: { color: darkGrid } }
+                }
+            }
+        });
+
+        // Gender doughnut
+        new Chart(document.getElementById("genderChart"), {
+            type: "doughnut",
+            data: {
+                labels: read("data-gender-labels"),
+                datasets: [{ data: read("data-gender-values"),
+                    backgroundColor: ["#f093fb","#4facfe"], borderWidth: 2,
+                    borderColor: "rgba(15,15,35,0.8)" }]
+            },
+            options: { responsive: true, plugins: { legend: legendOpts } }
+        });
+
+        // Monthly line chart
+        new Chart(document.getElementById("lineChart"), {
+            type: "line",
+            data: {
+                labels: read("data-monthly-labels"),
+                datasets: [{ label: "Monthly Revenue ($)", data: read("data-monthly-sales"),
+                    borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.12)",
+                    borderWidth: 2, pointRadius: 4, tension: 0.4, fill: true }]
+            },
+            options: { responsive: true, plugins: { legend: legendOpts },
+                scales: {
+                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
+                    y: { ticks: { color: tickColor, callback: v => "$" + v.toLocaleString() }, grid: { color: darkGrid } }
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

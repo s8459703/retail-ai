@@ -293,6 +293,68 @@ def premium():
     return render_template("premium.html")
 
 
+@app.route("/category/<category>")
+@login_required
+def category(category):
+    try:
+        df = load_data()
+        valid = df["Product Category"].unique().tolist()
+        if category not in valid:
+            return render_template("error.html", message=f"Category '{category}' not found."), 404
+
+        filtered = df[df["Product Category"] == category]
+
+        total_sales  = round(float(filtered["Total Amount"].sum()), 2)
+        total_orders = len(filtered)
+        avg_order    = round(float(filtered["Total Amount"].mean()), 2)
+        max_order    = round(float(filtered["Total Amount"].max()), 2)
+        min_order    = round(float(filtered["Total Amount"].min()), 2)
+
+        # City breakdown for this category
+        city_group  = filtered.groupby("Place")["Total Amount"].sum().sort_values(ascending=False)
+        city_labels = city_group.index.tolist()
+        city_sales  = [round(float(v), 2) for v in city_group.values]
+
+        # Gender breakdown
+        gender_counts = filtered["Gender"].value_counts()
+        gender_labels = gender_counts.index.tolist()
+        gender_values = gender_counts.values.tolist()
+
+        # Monthly trend
+        filtered = filtered.copy()
+        filtered["YearMonth"] = filtered["Year"].astype(str) + "-" + filtered["Month"].astype(str).str.zfill(2)
+        monthly = filtered.groupby("YearMonth")["Total Amount"].sum().sort_index()
+
+        # Recent transactions
+        recent = df[df["Product Category"] == category].tail(20)[
+            ["Transaction Id", "Day", "Month", "Year", "Place", "Gender", "Age", "Quantity", "Price Per Unit", "Total Amount"]
+        ].to_dict(orient="records")
+
+    except Exception as e:
+        return render_template("error.html", message=f"Failed to load category: {e}"), 500
+
+    return render_template(
+        "category.html",
+        category=category,
+        total_sales=total_sales,
+        total_orders=total_orders,
+        avg_order=avg_order,
+        max_order=max_order,
+        min_order=min_order,
+        city_labels=city_labels,
+        city_sales=city_sales,
+        gender_labels=gender_labels,
+        gender_values=gender_values,
+        monthly_labels=monthly.index.tolist(),
+        monthly_sales=[round(float(v), 2) for v in monthly.values],
+        recent=recent,
+        all_categories=valid,
+    )
+@login_required
+def premium():
+    return render_template("premium.html")
+
+
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
