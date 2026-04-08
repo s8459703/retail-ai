@@ -1,0 +1,25 @@
+=== ROUTES ===
+  /
+  /categories
+  /category/<category>
+  /dashboard
+  /filter
+  /future
+  /home
+  /login
+  /logout
+  /predict
+  /premium
+  /profile
+  /register
+  /settings
+  /static/<path:filename>
+  /subcategory/<category>/<subcategory>
+  /upload
+  /upload/reset
+  /welcome
+
+=== DATASET ===
+  Columns: ['Transaction Id', 'Customer Id', 'Day', 'Month', 'Year', 'Place', 'Gender', 'Age', 'Category', 'Sub Category', 'Brand', 'Product Name', 'Variant', 'Quantity', 'Price Per Unit', 'Total Amount']
+  Rows: 1000
+  Categories: ['Clothing', 'Sports', 'Electronics', 'Beauty', 'Grocery', 'Home']
