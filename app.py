@@ -510,6 +510,8 @@ def subcategory(category, subcategory):
                      .sort_values("Total Amount", ascending=False).head(50)\
                      .to_dict(orient="records")
 
+        brand_rows = list(zip(brand_labels, brand_sales, brand_counts))
+
         all_subs = sorted(df[df["Category"] == category]["Sub Category"].unique().tolist())
 
     except Exception as e:
@@ -522,6 +524,7 @@ def subcategory(category, subcategory):
         avg_price=avg_price, max_price=max_price, min_price=min_price,
         top_brand=top_brand,
         brand_labels=brand_labels, brand_sales=brand_sales, brand_counts=brand_counts,
+        brand_rows=brand_rows,
         price_labels=labels, price_counts=price_dist.tolist(),
         city_labels=city_group.index.tolist(),
         city_sales=[round(float(v), 2) for v in city_group.values],

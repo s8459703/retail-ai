@@ -185,7 +185,7 @@
                     <tr><th>#</th><th>Brand</th><th>Revenue</th><th>Transactions</th><th>Avg. Revenue</th></tr>
                 </thead>
                 <tbody>
-                    {% for brand, rev, cnt in zip(brand_labels, brand_sales, brand_counts) %}
+                    {% for brand, rev, cnt in brand_rows %}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td><span class="category-badge">{{ brand }}</span></td>
