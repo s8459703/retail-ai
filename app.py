@@ -376,6 +376,86 @@ def premium():
     return render_template("premium.html")
 
 
+@app.route("/filter")
+@login_required
+def filter_view():
+    try:
+        df = load_data()
+        # Get filter params
+        sel_category = request.args.get("category", "All")
+        sel_sub      = request.args.get("sub_category", "All")
+        sel_brand    = request.args.get("brand", "All")
+        sel_city     = request.args.get("city", "All")
+        sel_gender   = request.args.get("gender", "All")
+
+        # All options for dropdowns
+        all_categories = sorted(df["Category"].unique().tolist())
+        all_cities     = sorted(df["Place"].unique().tolist())
+        all_genders    = sorted(df["Gender"].unique().tolist())
+
+        # Apply filters
+        fdf = df.copy()
+        if sel_category != "All":
+            fdf = fdf[fdf["Category"] == sel_category]
+        all_subs   = sorted(fdf["Sub Category"].unique().tolist())
+        all_brands = sorted(fdf["Brand"].unique().tolist())
+        if sel_sub != "All":
+            fdf = fdf[fdf["Sub Category"] == sel_sub]
+        if sel_brand != "All":
+            fdf = fdf[fdf["Brand"] == sel_brand]
+        if sel_city != "All":
+            fdf = fdf[fdf["Place"] == sel_city]
+        if sel_gender != "All":
+            fdf = fdf[fdf["Gender"] == sel_gender]
+
+        total_sales  = round(float(fdf["Total Amount"].sum()), 2) if len(fdf) else 0
+        total_orders = len(fdf)
+        avg_order    = round(float(fdf["Total Amount"].mean()), 2) if len(fdf) else 0
+        total_brands = fdf["Brand"].nunique() if len(fdf) else 0
+
+        # Charts
+        cat_group    = fdf.groupby("Category")["Total Amount"].sum().sort_values(ascending=False)
+        brand_group  = fdf.groupby("Brand")["Total Amount"].sum().sort_values(ascending=False).head(10)
+        city_group   = fdf.groupby("Place")["Total Amount"].sum().sort_values(ascending=False)
+        gender_group = fdf["Gender"].value_counts()
+        sub_group    = fdf.groupby("Sub Category")["Total Amount"].sum().sort_values(ascending=False)
+
+        fdf2 = fdf.copy()
+        fdf2["YearMonth"] = fdf2["Year"].astype(str) + "-" + fdf2["Month"].astype(str).str.zfill(2)
+        monthly = fdf2.groupby("YearMonth")["Total Amount"].sum().sort_index()
+
+        # Table
+        cols = ["Transaction Id", "Day", "Month", "Year", "Place", "Gender",
+                "Age", "Category", "Sub Category", "Brand", "Quantity", "Price Per Unit", "Total Amount"]
+        table_rows = fdf[cols].head(50).to_dict(orient="records")
+
+    except Exception as e:
+        return render_template("error.html", message=f"Filter failed: {e}"), 500
+
+    return render_template(
+        "filter.html",
+        sel_category=sel_category, sel_sub=sel_sub, sel_brand=sel_brand,
+        sel_city=sel_city, sel_gender=sel_gender,
+        all_categories=all_categories, all_subs=all_subs, all_brands=all_brands,
+        all_cities=all_cities, all_genders=all_genders,
+        total_sales=total_sales, total_orders=total_orders,
+        avg_order=avg_order, total_brands=total_brands,
+        cat_labels=cat_group.index.tolist(),
+        cat_sales=[round(float(v), 2) for v in cat_group.values],
+        brand_labels=brand_group.index.tolist(),
+        brand_sales=[round(float(v), 2) for v in brand_group.values],
+        city_labels=city_group.index.tolist(),
+        city_sales=[round(float(v), 2) for v in city_group.values],
+        gender_labels=gender_group.index.tolist(),
+        gender_values=gender_group.values.tolist(),
+        sub_labels=sub_group.index.tolist(),
+        sub_sales=[round(float(v), 2) for v in sub_group.values],
+        monthly_labels=monthly.index.tolist(),
+        monthly_sales=[round(float(v), 2) for v in monthly.values],
+        table_rows=table_rows,
+    )
+
+
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():

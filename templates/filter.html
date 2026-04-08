@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter & Explore — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="d-cat-labels"     type="application/json">{{ cat_labels     | tojson }}</script>
+    <script id="d-cat-sales"      type="application/json">{{ cat_sales      | tojson }}</script>
+    <script id="d-brand-labels"   type="application/json">{{ brand_labels   | tojson }}</script>
+    <script id="d-brand-sales"    type="application/json">{{ brand_sales    | tojson }}</script>
+    <script id="d-city-labels"    type="application/json">{{ city_labels    | tojson }}</script>
+    <script id="d-city-sales"     type="application/json">{{ city_sales     | tojson }}</script>
+    <script id="d-gender-labels"  type="application/json">{{ gender_labels  | tojson }}</script>
+    <script id="d-gender-values"  type="application/json">{{ gender_values  | tojson }}</script>
+    <script id="d-sub-labels"     type="application/json">{{ sub_labels     | tojson }}</script>
+    <script id="d-sub-sales"      type="application/json">{{ sub_sales      | tojson }}</script>
+    <script id="d-monthly-labels" type="application/json">{{ monthly_labels | tojson }}</script>
+    <script id="d-monthly-sales"  type="application/json">{{ monthly_sales  | tojson }}</script>
+
+    <style>
+        .filter-bar {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 0.4rem; min-width: 150px; flex: 1; }
+        .filter-group label { font-size: 0.75rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+        .filter-select {
+            padding: 0.6rem 1rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.875rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus { border-color: #667eea; }
+        .filter-select option { background: #1a1a3e; color: white; }
+        .filter-actions { display: flex; gap: 0.5rem; align-items: flex-end; }
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(102,126,234,0.15);
+            border: 1px solid rgba(102,126,234,0.3);
+            color: #a5b4fc;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 500;
+        }
+        .results-count {
+            font-size: 0.82rem;
+            color: #888;
+            padding: 0.5rem 0;
+        }
+        .results-count strong { color: #a5b4fc; }
+    </style>
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+        <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{{ url_for('filter_view') }}" class="nav-item"><i class="fas fa-filter"></i> Filter & Explore</a>
+        <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+        <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+        <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+        <div style="padding:0.5rem 1.25rem;font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.5rem;">Categories</div>
+        {% for cat in all_categories %}
+        <a href="{{ url_for('category', category=cat) }}" class="nav-item"><i class="fas fa-tag"></i> {{ cat }}</a>
+        {% endfor %}
+        <a href="/settings" class="nav-item" style="margin-top:0.5rem;"><i class="fas fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="avatar">{{ session['user'][0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session['user'] }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-right-from-bracket"></i></a>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="topbar">
+        <div class="topbar-left"><h2><i class="fas fa-filter"></i> Filter &amp; Explore</h2></div>
+        <div class="topbar-right">
+            <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h1><i class="fas fa-filter"></i> Filter &amp; Explore</h1>
+        <p>Filter by category, sub-category, brand, city, and gender to explore your data interactively.</p>
+    </div>
+
+    <!-- Filter Bar -->
+    <form method="GET" action="{{ url_for('filter_view') }}" id="filterForm">
+        <div class="filter-bar">
+
+            <div class="filter-group">
+                <label>Category</label>
+                <select name="category" class="filter-select" onchange="this.form.submit()">
+                    <option value="All" {{ 'selected' if sel_category == 'All' }}>All Categories</option>
+                    {% for c in all_categories %}
+                    <option value="{{ c }}" {{ 'selected' if sel_category == c }}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Sub Category</label>
+                <select name="sub_category" class="filter-select" onchange="this.form.submit()">
+                    <option value="All" {{ 'selected' if sel_sub == 'All' }}>All Sub Categories</option>
+                    {% for s in all_subs %}
+                    <option value="{{ s }}" {{ 'selected' if sel_sub == s }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Brand</label>
+                <select name="brand" class="filter-select" onchange="this.form.submit()">
+                    <option value="All" {{ 'selected' if sel_brand == 'All' }}>All Brands</option>
+                    {% for b in all_brands %}
+                    <option value="{{ b }}" {{ 'selected' if sel_brand == b }}>{{ b }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>City</label>
+                <select name="city" class="filter-select" onchange="this.form.submit()">
+                    <option value="All" {{ 'selected' if sel_city == 'All' }}>All Cities</option>
+                    {% for c in all_cities %}
+                    <option value="{{ c }}" {{ 'selected' if sel_city == c }}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Gender</label>
+                <select name="gender" class="filter-select" onchange="this.form.submit()">
+                    <option value="All" {{ 'selected' if sel_gender == 'All' }}>All Genders</option>
+                    {% for g in all_genders %}
+                    <option value="{{ g }}" {{ 'selected' if sel_gender == g }}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <a href="{{ url_for('filter_view') }}" class="btn secondary">
+                    <i class="fas fa-rotate-left"></i> Reset
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Active filter tags -->
+        {% set active = [] %}
+        {% if sel_category != 'All' %}{% set _ = active.append('Category: ' ~ sel_category) %}{% endif %}
+        {% if sel_sub != 'All' %}{% set _ = active.append('Sub: ' ~ sel_sub) %}{% endif %}
+        {% if sel_brand != 'All' %}{% set _ = active.append('Brand: ' ~ sel_brand) %}{% endif %}
+        {% if sel_city != 'All' %}{% set _ = active.append('City: ' ~ sel_city) %}{% endif %}
+        {% if sel_gender != 'All' %}{% set _ = active.append('Gender: ' ~ sel_gender) %}{% endif %}
+        {% if active %}
+        <div class="active-filters">
+            {% for tag in active %}
+            <span class="filter-tag"><i class="fas fa-check"></i> {{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </form>
+
+    <p class="results-count">
+        Showing <strong>{{ "{:,}".format(total_orders) }}</strong> transactions
+        {% if sel_category != 'All' or sel_sub != 'All' or sel_brand != 'All' or sel_city != 'All' or sel_gender != 'All' %}
+        matching your filters
+        {% endif %}
+    </p>
+
+    <!-- KPI Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">₹{{ "{:,.0f}".format(total_sales) }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ "{:,}".format(total_orders) }}</div>
+                <div class="stat-label">Transactions</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">₹{{ "{:,.0f}".format(avg_order) }}</div>
+                <div class="stat-label">Avg. Order Value</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#f093fb,#f5576c);">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ total_brands }}</div>
+                <div class="stat-label">Brands in Results</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-bar"></i> Revenue by Category</h3>
+            <canvas id="catChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-layer-group"></i> Sub Category Breakdown</h3>
+            <canvas id="subChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3><i class="fas fa-tags"></i> Top Brands by Revenue</h3>
+            <canvas id="brandChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-map-marker-alt"></i> Revenue by City</h3>
+            <canvas id="cityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Monthly Sales Trend</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-venus-mars"></i> Sales by Gender</h3>
+            <canvas id="genderChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    {% if table_rows %}
+    <div class="table-card">
+        <div class="table-card-header">
+            <h3><i class="fas fa-table"></i> Filtered Transactions</h3>
+            <span class="table-count">Top 50 results</span>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>City</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Category</th>
+                        <th>Sub Category</th>
+                        <th>Brand</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table_rows %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ row['Day'] }}/{{ row['Month'] }}/{{ row['Year'] }}</td>
+                        <td>{{ row['Place'] }}</td>
+                        <td>{{ row['Gender'] }}</td>
+                        <td>{{ row['Age'] }}</td>
+                        <td><span class="category-badge">{{ row['Category'] }}</span></td>
+                        <td>{{ row['Sub Category'] }}</td>
+                        <td><span class="category-badge" style="background:rgba(240,147,251,0.1);border-color:rgba(240,147,251,0.25);color:#f093fb;">{{ row['Brand'] }}</span></td>
+                        <td>{{ row['Quantity'] }}</td>
+                        <td>₹{{ "{:,.0f}".format(row['Price Per Unit']) }}</td>
+                        <td class="text-highlight">₹{{ "{:,.0f}".format(row['Total Amount']) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="chart-card" style="text-align:center;padding:3rem;">
+        <i class="fas fa-search" style="font-size:3rem;color:rgba(102,126,234,0.3);"></i>
+        <p style="color:#888;margin-top:1rem;">No results match your filters. Try adjusting the selection above.</p>
+    </div>
+    {% endif %}
+
+</main>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const read = id => JSON.parse(document.getElementById(id)?.textContent || "[]");
+    const dg = "rgba(255,255,255,0.05)", tc = "#888";
+    const lo = { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } };
+    const scl = (prefix) => ({
+        x: { ticks: { color: tc }, grid: { color: dg } },
+        y: { ticks: { color: tc, callback: v => "₹" + v.toLocaleString() }, grid: { color: dg } }
+    });
+
+    const bar = (id, labels, data, color) => {
+        const el = document.getElementById(id);
+        if (!el || !labels.length) return;
+        new Chart(el, { type: "bar", data: { labels, datasets: [{ label: "Revenue (₹)", data, backgroundColor: color + "bf", borderColor: color, borderWidth: 1, borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: lo }, scales: scl() } });
+    };
+
+    bar("catChart",   read("d-cat-labels"),   read("d-cat-sales"),   "#667eea");
+    bar("brandChart", read("d-brand-labels"), read("d-brand-sales"), "#f093fb");
+    bar("cityChart",  read("d-city-labels"),  read("d-city-sales"),  "#4facfe");
+
+    // Sub category doughnut
+    const sEl = document.getElementById("subChart");
+    if (sEl && read("d-sub-labels").length) {
+        new Chart(sEl, { type: "doughnut", data: { labels: read("d-sub-labels"), datasets: [{ data: read("d-sub-sales"), backgroundColor: ["#667eea","#f093fb","#4facfe","#43e97b","#fa709a","#fee140","#a18cd1","#fda085"], borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }] }, options: { responsive: true, plugins: { legend: lo } } });
+    }
+
+    // Gender doughnut
+    const gEl = document.getElementById("genderChart");
+    if (gEl && read("d-gender-labels").length) {
+        new Chart(gEl, { type: "doughnut", data: { labels: read("d-gender-labels"), datasets: [{ data: read("d-gender-values"), backgroundColor: ["#f093fb","#4facfe"], borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }] }, options: { responsive: true, plugins: { legend: lo } } });
+    }
+
+    // Monthly line
+    const lEl = document.getElementById("lineChart");
+    if (lEl && read("d-monthly-labels").length) {
+        new Chart(lEl, { type: "line", data: { labels: read("d-monthly-labels"), datasets: [{ label: "Monthly Revenue (₹)", data: read("d-monthly-sales"), borderColor: "#667eea", backgroundColor: "rgba(102,126,234,0.12)", borderWidth: 2, pointRadius: 4, tension: 0.4, fill: true }] }, options: { responsive: true, plugins: { legend: lo }, scales: scl() } });
+    }
+});
+</script>
+</body>
+</html>
