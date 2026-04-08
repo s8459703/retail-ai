@@ -13,7 +13,7 @@ DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset", "retail_s
 UPLOAD_FOLDER    = os.path.join(os.path.dirname(__file__), "dataset", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-REQUIRED_COLUMNS = {"Total Amount", "Product Category", "Year", "Month"}
+REQUIRED_COLUMNS = {"Total Amount", "Category", "Year", "Month"}
 
 ADMIN_USER  = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASS  = os.environ.get("ADMIN_PASS", "changeme")
@@ -157,13 +157,13 @@ def dashboard():
     total_sales  = round(float(df["Total Amount"].sum()), 2)
     total_orders = len(df)
     avg_sales    = round(float(df["Total Amount"].mean()), 2)
-    best_product = df.groupby("Product Category")["Total Amount"].sum().idxmax()
+    best_product = df.groupby("Category")["Total Amount"].sum().idxmax()
 
     # Category breakdown
-    cat_group   = df.groupby("Product Category")["Total Amount"]
+    cat_group   = df.groupby("Category")["Total Amount"]
     categories  = cat_group.sum().index.tolist()
     cat_sales   = [round(float(v), 2) for v in cat_group.sum().values]
-    cat_counts  = df.groupby("Product Category").size().reindex(categories).tolist()
+    cat_counts  = df.groupby("Category").size().reindex(categories).tolist()
     cat_avgs    = [round(float(v), 2) for v in cat_group.mean().reindex(categories).values]
 
     table_rows = [
@@ -192,6 +192,11 @@ def dashboard():
     min_sale = round(float(df["Total Amount"].min()), 2)
     avg_age  = round(float(df["Age"].mean()), 1) if "Age" in df.columns else "—"
 
+    # Brand breakdown
+    brand_group  = df.groupby("Brand")["Total Amount"].sum().sort_values(ascending=False).head(10)
+    brand_labels = brand_group.index.tolist()
+    brand_sales  = [round(float(v), 2) for v in brand_group.values]
+
     return render_template(
         "dashboard.html",
         total_sales=total_sales,
@@ -210,6 +215,8 @@ def dashboard():
         gender_values=gender_values,
         city_labels=city_labels,
         city_sales=city_sales,
+        brand_labels=brand_labels,
+        brand_sales=brand_sales,
     )
 
 
@@ -298,17 +305,27 @@ def premium():
 def category(category):
     try:
         df = load_data()
-        valid = df["Product Category"].unique().tolist()
+        valid = df["Category"].unique().tolist()
         if category not in valid:
             return render_template("error.html", message=f"Category '{category}' not found."), 404
 
-        filtered = df[df["Product Category"] == category]
+        filtered = df[df["Category"] == category]
 
         total_sales  = round(float(filtered["Total Amount"].sum()), 2)
         total_orders = len(filtered)
         avg_order    = round(float(filtered["Total Amount"].mean()), 2)
         max_order    = round(float(filtered["Total Amount"].max()), 2)
         min_order    = round(float(filtered["Total Amount"].min()), 2)
+
+        # Brand breakdown for this category
+        brand_group  = filtered.groupby("Brand")["Total Amount"].sum().sort_values(ascending=False)
+        brand_labels = brand_group.index.tolist()
+        brand_sales  = [round(float(v), 2) for v in brand_group.values]
+
+        # Sub category breakdown
+        sub_group  = filtered.groupby("Sub Category")["Total Amount"].sum().sort_values(ascending=False)
+        sub_labels = sub_group.index.tolist()
+        sub_sales  = [round(float(v), 2) for v in sub_group.values]
 
         # City breakdown for this category
         city_group  = filtered.groupby("Place")["Total Amount"].sum().sort_values(ascending=False)
@@ -326,8 +343,8 @@ def category(category):
         monthly = filtered.groupby("YearMonth")["Total Amount"].sum().sort_index()
 
         # Recent transactions
-        recent = df[df["Product Category"] == category].tail(20)[
-            ["Transaction Id", "Day", "Month", "Year", "Place", "Gender", "Age", "Quantity", "Price Per Unit", "Total Amount"]
+        recent = df[df["Category"] == category].tail(20)[
+            ["Transaction Id", "Day", "Month", "Year", "Place", "Gender", "Age", "Brand", "Sub Category", "Quantity", "Price Per Unit", "Total Amount"]
         ].to_dict(orient="records")
 
     except Exception as e:
@@ -343,6 +360,10 @@ def category(category):
         min_order=min_order,
         city_labels=city_labels,
         city_sales=city_sales,
+        brand_labels=brand_labels,
+        brand_sales=brand_sales,
+        sub_labels=sub_labels,
+        sub_sales=sub_sales,
         gender_labels=gender_labels,
         gender_values=gender_values,
         monthly_labels=monthly.index.tolist(),
@@ -426,8 +447,8 @@ def profile():
         df = load_data()
         total_orders     = len(df)
         total_sales      = round(float(df["Total Amount"].sum()), 2)
-        total_categories = df["Product Category"].nunique()
-        best_product     = df.groupby("Product Category")["Total Amount"].sum().idxmax()
+        total_categories = df["Category"].nunique()
+        best_product     = df.groupby("Category")["Total Amount"].sum().idxmax()
     except Exception:
         total_orders, total_sales, total_categories, best_product = 0, 0.0, 0, "—"
 

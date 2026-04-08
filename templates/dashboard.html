@@ -17,6 +17,8 @@
     <script id="data-gender-values" type="application/json">{{ gender_values  | tojson }}</script>
     <script id="data-city-labels" type="application/json">{{ city_labels    | tojson }}</script>
     <script id="data-city-sales" type="application/json">{{ city_sales     | tojson }}</script>
+    <script id="data-brand-labels" type="application/json">{{ brand_labels  | tojson }}</script>
+    <script id="data-brand-sales" type="application/json">{{ brand_sales   | tojson }}</script>
 </head>
 
 <body>
@@ -155,9 +157,15 @@
             </div>
         </div>
 
+        <!-- Brand chart -->
+        <div class="chart-card">
+            <h3><i class="fas fa-tags"></i> Top 10 Brands by Revenue</h3>
+            <canvas id="brandChart"></canvas>
+        </div>
+
         <!-- Monthly Trend -->
         <div class="chart-card">
-            <h3><i class="fas fa-chart-line"></i> Monthly Sales Trend (2023–2024)</h3>
+            <h3><i class="fas fa-chart-line"></i> Monthly Sales Trend</h3>
             <canvas id="lineChart"></canvas>
         </div>
 
@@ -225,18 +233,19 @@
             if (document.getElementById("cityChart") && cLabels.length) {
                 new Chart(document.getElementById("cityChart"), {
                     type: "bar",
-                    data: {
-                        labels: cLabels,
-                        datasets: [{ label: "Revenue (₹)", data: cSales, backgroundColor: "rgba(79,172,254,0.75)", borderColor: "#4facfe", borderWidth: 1, borderRadius: 6 }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: legendOpts },
-                        scales: {
-                            x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
-                            y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } }
-                        }
-                    }
+                    data: { labels: cLabels, datasets: [{ label: "Revenue (₹)", data: cSales, backgroundColor: "rgba(79,172,254,0.75)", borderColor: "#4facfe", borderWidth: 1, borderRadius: 6 }] },
+                    options: { responsive: true, plugins: { legend: legendOpts }, scales: { x: { ticks: { color: tickColor }, grid: { color: darkGrid } }, y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } } } }
+                });
+            }
+
+            // Brand bar chart
+            const bLabels = read("data-brand-labels");
+            const bSales  = read("data-brand-sales");
+            if (document.getElementById("brandChart") && bLabels.length) {
+                new Chart(document.getElementById("brandChart"), {
+                    type: "bar",
+                    data: { labels: bLabels, datasets: [{ label: "Revenue (₹)", data: bSales, backgroundColor: "rgba(240,147,251,0.75)", borderColor: "#f093fb", borderWidth: 1, borderRadius: 6 }] },
+                    options: { responsive: true, plugins: { legend: legendOpts }, scales: { x: { ticks: { color: tickColor }, grid: { color: darkGrid } }, y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } } } }
                 });
             }
         });
