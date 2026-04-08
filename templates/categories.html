@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .cat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 1.75rem;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .cat-card:hover { transform: translateY(-4px); border-color: rgba(102,126,234,0.4); background: rgba(102,126,234,0.07); }
+        .cat-card-header { display: flex; align-items: center; gap: 1rem; }
+        .cat-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(45deg,#667eea,#764ba2); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .cat-name { font-size: 1.2rem; font-weight: 700; color: white; }
+        .cat-meta { font-size: 0.8rem; color: #888; margin-top: 0.15rem; }
+        .cat-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .cat-stat { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 0.75rem 1rem; }
+        .cat-stat-val { font-size: 1.1rem; font-weight: 700; color: #a5b4fc; }
+        .cat-stat-lbl { font-size: 0.72rem; color: #888; margin-top: 0.15rem; }
+        .sub-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .sub-tag { background: rgba(102,126,234,0.1); border: 1px solid rgba(102,126,234,0.2); color: #a5b4fc; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.75rem; }
+        .cat-arrow { margin-top: auto; display: flex; align-items: center; justify-content: space-between; color: #555; font-size: 0.82rem; }
+        .cat-card:hover .cat-arrow { color: #667eea; }
+        .icon-map { Electronics: "fas fa-microchip" }
+    </style>
+</head>
+<body>
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+        <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/filter" class="nav-item"><i class="fas fa-filter"></i> Filter &amp; Explore</a>
+        <a href="{{ url_for('categories') }}" class="nav-item active"><i class="fas fa-th-large"></i> Categories</a>
+        <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+        <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+        <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+        <a href="/settings" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="avatar">{{ session['user'][0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session['user'] }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-right-from-bracket"></i></a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="topbar">
+        <div class="topbar-left"><h2><i class="fas fa-th-large"></i> Categories</h2></div>
+        <div class="topbar-right">
+            <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h1><i class="fas fa-th-large"></i> Product Categories</h1>
+        <p>Select a category to explore subcategories, brands, and detailed analysis.</p>
+    </div>
+
+    <!-- Summary row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-th-large"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ cat_stats | length }}</div>
+                <div class="stat-label">Total Categories</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">{{ "{:,}".format(cat_stats | sum(attribute='count')) }}</div>
+                <div class="stat-label">Total Transactions</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+            <div class="stat-info">
+                <div class="stat-value">₹{{ "{:,.0f}".format(cat_stats | sum(attribute='total')) }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#f093fb,#f5576c);">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ cat_stats | sum(attribute='brands') }}</div>
+                <div class="stat-label">Total Brands</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category cards -->
+    <div class="cat-grid">
+        {% set icons = {
+            'Electronics': 'fas fa-microchip',
+            'Clothing':    'fas fa-shirt',
+            'Beauty':      'fas fa-spa',
+            'Sports':      'fas fa-dumbbell',
+            'Home':        'fas fa-house',
+            'Grocery':     'fas fa-basket-shopping'
+        } %}
+        {% for cat in cat_stats %}
+        <a href="{{ url_for('category', category=cat.name) }}" class="cat-card">
+            <div class="cat-card-header">
+                <div class="cat-icon">
+                    <i class="{{ icons.get(cat.name, 'fas fa-tag') }}"></i>
+                </div>
+                <div>
+                    <div class="cat-name">{{ cat.name }}</div>
+                    <div class="cat-meta">{{ cat.brands }} brands · {{ cat.sub_cats | length }} sub-categories</div>
+                </div>
+            </div>
+
+            <div class="cat-stats">
+                <div class="cat-stat">
+                    <div class="cat-stat-val">₹{{ "{:,.0f}".format(cat.total) }}</div>
+                    <div class="cat-stat-lbl">Total Revenue</div>
+                </div>
+                <div class="cat-stat">
+                    <div class="cat-stat-val">{{ "{:,}".format(cat.count) }}</div>
+                    <div class="cat-stat-lbl">Transactions</div>
+                </div>
+                <div class="cat-stat">
+                    <div class="cat-stat-val">₹{{ "{:,.0f}".format(cat.avg) }}</div>
+                    <div class="cat-stat-lbl">Avg. Order</div>
+                </div>
+                <div class="cat-stat">
+                    <div class="cat-stat-val">{{ cat.brands }}</div>
+                    <div class="cat-stat-lbl">Brands</div>
+                </div>
+            </div>
+
+            <div class="sub-tags">
+                {% for sub in cat.sub_cats %}
+                <span class="sub-tag">{{ sub }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="cat-arrow">
+                <span>View details</span>
+                <i class="fas fa-arrow-right"></i>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

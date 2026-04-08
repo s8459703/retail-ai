@@ -82,6 +82,23 @@
             <p>Detailed breakdown of all <strong>{{ "{:,}".format(total_orders) }}</strong> transactions in the {{ category }} category.</p>
         </div>
 
+        <!-- Subcategory cards -->
+        <div class="section-heading">Subcategories — click to drill down</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;">
+            {% for sub in sub_labels %}
+            <a href="{{ url_for('subcategory', category=category, subcategory=sub) }}"
+               style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.25rem 1.5rem;text-decoration:none;color:inherit;display:flex;align-items:center;justify-content:space-between;gap:1rem;transition:all 0.2s;"
+               onmouseover="this.style.borderColor='rgba(102,126,234,0.4)';this.style.background='rgba(102,126,234,0.08)'"
+               onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.04)'">
+                <div>
+                    <div style="font-weight:600;color:white;font-size:0.95rem;">{{ sub }}</div>
+                    <div style="font-size:0.75rem;color:#888;margin-top:0.2rem;">View products</div>
+                </div>
+                <i class="fas fa-arrow-right" style="color:#667eea;"></i>
+            </a>
+            {% endfor %}
+        </div>
+
         <!-- KPI Cards -->
         <div class="stats-grid">
             <div class="stat-card">
