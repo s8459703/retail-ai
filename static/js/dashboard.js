@@ -29,15 +29,21 @@ document.addEventListener("DOMContentLoaded", () => {
    1. CHARTS — read data from canvas data-* attributes
    ══════════════════════════════════════════════════════════ */
 function initCharts() {
+    // Read accent color from CSS variable so charts match the active theme
+    const style      = getComputedStyle(document.documentElement);
+    const accentFrom = style.getPropertyValue("--accent-from").trim() || "#6366f1";
+    const accentTo   = style.getPropertyValue("--accent-to").trim()   || "#8b5cf6";
+    const accentRgb  = style.getPropertyValue("--accent-rgb").trim()  || "99,102,241";
+
     const PALETTE = [
-        "#667eea", "#764ba2", "#f093fb", "#4facfe",
-        "#43e97b", "#fa709a", "#fee140", "#30cfd0",
-        "#a18cd1", "#fda085"
+        accentFrom, accentTo,
+        "#f093fb", "#4facfe", "#43e97b", "#fa709a",
+        "#fee140", "#30cfd0", "#a18cd1", "#fda085"
     ];
     const darkGrid   = "rgba(255,255,255,0.05)";
-    const tickColor  = "#888";
-    const legendOpts = { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } };
-    const dollarTick = (v) => "$" + v.toLocaleString();
+    const tickColor  = style.getPropertyValue("--text-faint").trim() || "#888";
+    const legendOpts = { labels: { color: style.getPropertyValue("--text-muted").trim() || "rgba(255,255,255,0.75)", padding: 16 } };
+    const dollarTick = (v) => "₹" + v.toLocaleString();
 
     // Read data from <script type="application/json"> islands — safe, no attribute escaping
     function readIsland(id) {
@@ -58,10 +64,10 @@ function initCharts() {
             data: {
                 labels: categories,
                 datasets: [{
-                    label: "Revenue ($)",
+                    label: "Revenue (₹)",
                     data: categorySales,
-                    backgroundColor: "rgba(102,126,234,0.75)",
-                    borderColor: "#667eea",
+                    backgroundColor: `rgba(${accentRgb},0.75)`,
+                    borderColor: accentFrom,
                     borderWidth: 1,
                     borderRadius: 6,
                 }]
@@ -106,12 +112,12 @@ function initCharts() {
             data: {
                 labels: monthlyLabels,
                 datasets: [{
-                    label: "Monthly Revenue ($)",
+                    label: "Monthly Revenue (₹)",
                     data: monthlySales,
-                    borderColor: "#667eea",
-                    backgroundColor: "rgba(102,126,234,0.12)",
+                    borderColor: accentFrom,
+                    backgroundColor: `rgba(${accentRgb},0.12)`,
                     borderWidth: 2,
-                    pointBackgroundColor: "#667eea",
+                    pointBackgroundColor: accentFrom,
                     pointRadius: 4,
                     tension: 0.4,
                     fill: true,

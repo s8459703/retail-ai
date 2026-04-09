@@ -19,6 +19,7 @@
     --text-faint:   #666;
     --accent-from:  #6366f1;
     --accent-to:    #8b5cf6;
+    --accent-rgb:   99,102,241;
     --accent-grad:  linear-gradient(135deg, var(--accent-from), var(--accent-to));
     --sidebar-bg:   rgba(8,8,24,0.97);
     --card-hover:   rgba(99,102,241,0.08);
@@ -34,6 +35,10 @@
     --text-primary: #1e1b4b;
     --text-muted:   #4c4f7a;
     --text-faint:   #888;
+    --accent-from:  #6366f1;
+    --accent-to:    #8b5cf6;
+    --accent-rgb:   99,102,241;
+    --accent-grad:  linear-gradient(135deg, #6366f1, #8b5cf6);
     --sidebar-bg:   rgba(238,240,255,0.98);
     --card-hover:   rgba(99,102,241,0.06);
     --card-border-hover: rgba(99,102,241,0.25);
@@ -50,6 +55,7 @@
     --text-faint:   #4a8fa8;
     --accent-from:  #0ea5e9;
     --accent-to:    #06b6d4;
+    --accent-rgb:   14,165,233;
     --accent-grad:  linear-gradient(135deg, #0ea5e9, #06b6d4);
     --sidebar-bg:   rgba(2,10,22,0.98);
     --card-hover:   rgba(14,165,233,0.07);
@@ -67,6 +73,7 @@
     --text-faint:   #3a7a55;
     --accent-from:  #22c55e;
     --accent-to:    #16a34a;
+    --accent-rgb:   34,197,94;
     --accent-grad:  linear-gradient(135deg, #22c55e, #16a34a);
     --sidebar-bg:   rgba(2,12,6,0.98);
     --card-hover:   rgba(34,197,94,0.07);
@@ -538,16 +545,16 @@ tbody tr:hover td {
 .category-badge {
     display: inline-block;
     padding: 0.2rem 0.65rem;
-    background: rgba(102, 126, 234, 0.12);
-    border: 1px solid rgba(102, 126, 234, 0.25);
+    background: rgba(var(--accent-rgb), 0.12);
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
     border-radius: 20px;
     font-size: 0.82rem;
-    color: #a5b4fc;
+    color: var(--accent-from);
     font-weight: 500;
 }
 
 .text-highlight {
-    color: #a5b4fc;
+    color: var(--accent-from);
     font-weight: 600;
 }
 
@@ -718,14 +725,14 @@ tbody tr:hover td {
 }
 
 .badge-info {
-    background: rgba(102, 126, 234, 0.15);
-    color: #a5b4fc;
+    background: rgba(var(--accent-rgb), 0.15);
+    color: var(--accent-from);
 }
 
 /* ── Home page ──────────────────────────────────────────── */
 .welcome-banner {
-    background: linear-gradient(135deg, rgba(102,126,234,0.12), rgba(118,75,162,0.12));
-    border: 1px solid rgba(102, 126, 234, 0.25);
+    background: linear-gradient(135deg, rgba(var(--accent-rgb),0.12), rgba(var(--accent-rgb),0.06));
+    border: 1px solid rgba(var(--accent-rgb),0.25);
     border-radius: 20px;
     padding: 2rem 2.5rem;
     display: flex;
@@ -738,12 +745,12 @@ tbody tr:hover td {
 .welcome-banner-text h1 {
     font-size: 1.6rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.35rem;
 }
 
 .welcome-banner-text p {
-    color: #b0b0d0;
+    color: var(--text-muted);
     font-size: 0.9rem;
 }
 
@@ -752,7 +759,7 @@ tbody tr:hover td {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #667eea;
+    color: var(--accent-from);
     margin-bottom: 1rem;
 }
 
@@ -777,8 +784,8 @@ tbody tr:hover td {
 
 .quick-action-card:hover {
     transform: translateY(-3px);
-    background: rgba(102, 126, 234, 0.1);
-    border-color: rgba(102, 126, 234, 0.35);
+    background: var(--card-hover);
+    border-color: var(--card-border-hover);
 }
 
 .quick-action-card--danger:hover {
@@ -790,7 +797,7 @@ tbody tr:hover td {
     width: 46px;
     height: 46px;
     border-radius: 12px;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -810,13 +817,13 @@ tbody tr:hover td {
 .qa-title {
     font-size: 0.95rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.2rem;
 }
 
 .qa-desc {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-faint);
     line-height: 1.4;
 }
 
@@ -827,7 +834,7 @@ tbody tr:hover td {
 }
 
 .quick-action-card:hover .qa-arrow {
-    color: #667eea;
+    color: var(--accent-from);
     transform: translateX(3px);
 }
 
@@ -892,7 +899,7 @@ tbody tr:hover td {
 .prediction-value {
     font-size: 3rem;
     font-weight: 800;
-    background: linear-gradient(45deg, #667eea, #f093fb);
+    background: var(--accent-grad);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -958,7 +965,7 @@ tbody tr:hover td {
 .model-info-value {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #a5b4fc;
+    color: var(--accent-from);
 }
 
 /* Alert (predict error) */
@@ -1013,8 +1020,8 @@ tbody tr:hover td {
 }
 
 .plan-card--featured {
-    border-color: rgba(102, 126, 234, 0.5);
-    background: rgba(102, 126, 234, 0.07);
+    border-color: rgba(var(--accent-rgb), 0.5);
+    background: rgba(var(--accent-rgb), 0.07);
     transform: scale(1.03);
 }
 
@@ -1027,7 +1034,7 @@ tbody tr:hover td {
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     color: white;
     font-size: 0.72rem;
     font-weight: 700;
@@ -1125,9 +1132,9 @@ tbody tr:hover td {
     align-items: center;
     gap: 1rem;
     padding: 1.5rem 1.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border);
     font-size: 1.1rem;
-    color: #667eea;
+    color: var(--accent-from);
 }
 
 .settings-card-title {
@@ -1205,7 +1212,7 @@ tbody tr:hover td {
 }
 
 .toggle-switch input:checked + .toggle-track {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
 }
 
 .toggle-thumb {
@@ -1247,9 +1254,9 @@ tbody tr:hover td {
 
 .theme-btn.active,
 .theme-btn:hover {
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.4);
-    color: white;
+    background: rgba(var(--accent-rgb), 0.15);
+    border-color: rgba(var(--accent-rgb), 0.4);
+    color: var(--text-primary);
 }
 
 /* Settings input */
@@ -1266,8 +1273,8 @@ tbody tr:hover td {
 }
 
 .settings-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    border-color: var(--accent-from);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
 }
 
 .settings-input::placeholder {
@@ -1327,7 +1334,7 @@ tbody tr:hover td {
 
 /* Drop zone */
 .drop-zone {
-    border: 2px dashed rgba(102, 126, 234, 0.35);
+    border: 2px dashed rgba(var(--accent-rgb), 0.35);
     border-radius: 16px;
     padding: 2.5rem 1.5rem;
     display: flex;
@@ -1337,13 +1344,13 @@ tbody tr:hover td {
     cursor: pointer;
     transition: border-color 0.25s ease, background 0.25s ease;
     text-align: center;
-    background: rgba(102, 126, 234, 0.03);
+    background: rgba(var(--accent-rgb), 0.03);
 }
 
 .drop-zone:hover,
 .drop-zone.drag-over {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.08);
+    border-color: var(--accent-from);
+    background: rgba(var(--accent-rgb), 0.08);
 }
 
 .drop-zone--has-file {
@@ -1355,7 +1362,7 @@ tbody tr:hover td {
     width: 56px;
     height: 56px;
     border-radius: 16px;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1481,7 +1488,7 @@ tbody tr:hover td {
 }
 
 .upload-col-item--highlight {
-    background: rgba(102, 126, 234, 0.07);
+    background: rgba(var(--accent-rgb), 0.07);
 }
 
 .upload-col-name {
@@ -1499,9 +1506,9 @@ tbody tr:hover td {
 }
 
 .upload-col-item--highlight .upload-col-type {
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.3);
-    color: #a5b4fc;
+    background: rgba(var(--accent-rgb), 0.15);
+    border-color: rgba(var(--accent-rgb), 0.3);
+    color: var(--accent-from);
 }
 
 @media (max-width: 900px) {
@@ -1515,8 +1522,8 @@ tbody tr:hover td {
     display: flex;
     align-items: center;
     gap: 1.75rem;
-    background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, rgba(var(--accent-rgb),0.1), rgba(var(--accent-rgb),0.05));
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 20px;
     padding: 2rem 2.5rem;
     flex-wrap: wrap;
@@ -1526,7 +1533,7 @@ tbody tr:hover td {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1534,7 +1541,7 @@ tbody tr:hover td {
     font-weight: 800;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.4);
 }
 
 .profile-hero-info {
