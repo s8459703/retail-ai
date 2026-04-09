@@ -1,5 +1,11 @@
 "use strict";
 
+// Apply saved theme immediately before DOM renders to avoid flash
+(function() {
+    const t = localStorage.getItem("retailai-theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+})();
+
 /* ═══════════════════════════════════════════════════════════
    dashboard.js  —  Shared JS for Retail AI inner pages
    Covers: sidebar, upload, predict, settings
@@ -320,22 +326,20 @@ function initSettings() {
 }
 
 function initThemeSwitcher() {
-    const themeBtns = $$(".theme-btn");
+    const themeBtns = $$("[data-theme]");
     if (!themeBtns.length) return;
 
-    // Restore saved theme
     const saved = localStorage.getItem("retailai-theme") || "dark";
     applyTheme(saved);
-    themeBtns.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.theme === saved);
-    });
+    themeBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.theme === saved));
 
-    themeBtns.forEach((btn) => {
+    themeBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             const theme = btn.dataset.theme;
             applyTheme(theme);
             localStorage.setItem("retailai-theme", theme);
-            themeBtns.forEach((b) => b.classList.toggle("active", b === btn));
+            themeBtns.forEach(b => b.classList.toggle("active", b === btn));
+            showToast(`Theme changed to ${theme}.`, "info");
         });
     });
 }

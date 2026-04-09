@@ -4,10 +4,22 @@ import hashlib
 import numpy as np
 import pandas as pd
 from flask import Flask, render_template, request, redirect, session, url_for
+from flask_dance.contrib.google import make_google_blueprint, google
 from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+
+# Google OAuth — set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in environment
+os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # allow http in dev
+google_bp = make_google_blueprint(
+    client_id=os.environ.get("GOOGLE_CLIENT_ID", ""),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET", ""),
+    scope=["openid", "https://www.googleapis.com/auth/userinfo.email",
+           "https://www.googleapis.com/auth/userinfo.profile"],
+    redirect_to="google_login_callback",
+)
+app.register_blueprint(google_bp, url_prefix="/google_auth")
 
 DEFAULT_DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset", "retail_sales.csv")
 UPLOAD_FOLDER    = os.path.join(os.path.dirname(__file__), "dataset", "uploads")
@@ -143,6 +155,29 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/google_login_callback")
+def google_login_callback():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    try:
+        resp = google.get("/oauth2/v2/userinfo")
+        if not resp.ok:
+            return redirect(url_for("login"))
+        info     = resp.json()
+        email    = info.get("email", "")
+        name     = info.get("name", email.split("@")[0])
+        username = email.split("@")[0]
+        # Auto-register Google user if not exists
+        users = load_users()
+        if username not in users:
+            users[username] = {"password": "", "role": "user", "email": email, "google": True}
+            save_users(users)
+        session["user"] = username
+        return redirect(url_for("dashboard"))
+    except Exception:
+        return redirect(url_for("login"))
 
 
 @app.route("/dashboard")
