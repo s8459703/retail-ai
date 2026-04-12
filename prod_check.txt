@@ -1,0 +1,10 @@
+200  /product  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta nam
+200  /api/subcategories?category=Clothing  ["Kids","Men","Women"]
+
+200  /api/brands?category=Clothing&sub_category=Men  ["Adidas","Nike","Puma"]
+
+200  /api/product_analysis?category=Clothing&sub_category=Men  {"avg_order":7271.75,"brand_labels":["Adidas","Nike","Puma"],"brand_sales":[1649

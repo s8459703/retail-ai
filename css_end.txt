@@ -1,0 +1,1 @@
+';\n    }\n\n    .stats-grid {\n        grid-template-columns: 1fr;\n    }\n\n    .welcome-metrics,\n    .actions-grid {\n        grid-template-columns: 1fr;\n    }\n\n    .hero-buttons {\n        flex-direction: column;\n    }\n\n    .topbar {\n        flex-direction: column;\n        align-items: flex-start;\n    }\n}'
