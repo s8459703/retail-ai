@@ -1,0 +1,195 @@
+replacements = [
+    # Hardcoded white text
+    ('color: white;',                          'color: var(--text-primary);'),
+    ("color: #ccc;",                           'color: var(--text-muted);'),
+    ("color: #888;",                           'color: var(--text-faint);'),
+    ("color: #666;",                           'color: var(--text-faint);'),
+    ("color: #555;",                           'color: var(--text-faint);'),
+    ("color: #b0b0d0;",                        'color: var(--text-muted);'),
+    ("color: #a5b4fc;",                        'color: var(--accent-from);'),
+    # Hardcoded surfaces
+    ('background: rgba(255, 255, 255, 0.04);', 'background: var(--bg-surface);'),
+    ('background: rgba(255, 255, 255, 0.05);', 'background: var(--bg-surface);'),
+    ('background: rgba(255, 255, 255, 0.06);', 'background: var(--bg-surface);'),
+    ('background: rgba(255, 255, 255, 0.07);', 'background: var(--bg-surface2);'),
+    ('background: rgba(255, 255, 255, 0.08);', 'background: var(--bg-surface2);'),
+    ('background: rgba(255, 255, 255, 0.12);', 'background: var(--bg-surface2);'),
+    # Hardcoded borders
+    ('border: 1px solid rgba(255, 255, 255, 0.04);',  'border: 1px solid var(--border);'),
+    ('border: 1px solid rgba(255, 255, 255, 0.06);',  'border: 1px solid var(--border);'),
+    ('border: 1px solid rgba(255, 255, 255, 0.07);',  'border: 1px solid var(--border);'),
+    ('border: 1px solid rgba(255, 255, 255, 0.08);',  'border: 1px solid var(--border);'),
+    ('border: 1px solid rgba(255, 255, 255, 0.1);',   'border: 1px solid var(--border);'),
+    ('border: 1.5px solid rgba(255, 255, 255, 0.08);','border: 1.5px solid var(--border);'),
+    ('border-bottom: 1px solid rgba(255, 255, 255, 0.04);', 'border-bottom: 1px solid var(--border);'),
+    ('border-bottom: 1px solid rgba(255, 255, 255, 0.06);', 'border-bottom: 1px solid var(--border);'),
+    ('border-bottom: 1px solid rgba(255, 255, 255, 0.08);', 'border-bottom: 1px solid var(--border);'),
+    ('border: 1px solid rgba(255, 255, 255, 0.06);',  'border: 1px solid var(--border);'),
+    # Hardcoded accent
+    ('background: linear-gradient(45deg, #667eea, #764ba2);', 'background: var(--accent-grad);'),
+    ('background: linear-gradient(90deg, #667eea, #764ba2);', 'background: var(--accent-grad);'),
+    ('color: rgba(102, 126, 234, 0.25);',      'color: rgba(var(--accent-rgb), 0.25);'),
+    ('border-color: rgba(102, 126, 234, 0.4);','border-color: rgba(var(--accent-rgb), 0.4);'),
+    ('border-color: rgba(102, 126, 234, 0.3);','border-color: rgba(var(--accent-rgb), 0.3);'),
+    ('background: rgba(102, 126, 234, 0.15);', 'background: rgba(var(--accent-rgb), 0.15);'),
+    ('background: rgba(102, 126, 234, 0.1);',  'background: rgba(var(--accent-rgb), 0.1);'),
+    ('background: rgba(102, 126, 234, 0.06);', 'background: rgba(var(--accent-rgb), 0.06);'),
+    ('background: rgba(102, 126, 234, 0.4);',  'background: rgba(var(--accent-rgb), 0.4);'),
+    ('background: rgba(102, 126, 234, 0.7);',  'background: rgba(var(--accent-rgb), 0.7);'),
+    # Hardcoded plan/settings text
+    ("color: white;\r\n    margin-bottom: 0.5rem;",  'color: var(--text-primary);\r\n    margin-bottom: 0.5rem;'),
+    ("color: white;\r\n    line-height: 1;",          'color: var(--text-primary);\r\n    line-height: 1;'),
+    ("color: white;\r\n    line-height: 1.2;",        'color: var(--text-primary);\r\n    line-height: 1.2;'),
+    ("color: white;\r\n    margin-bottom: 0.2rem;",   'color: var(--text-primary);\r\n    margin-bottom: 0.2rem;'),
+    # Misc
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 1.75rem;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 1.75rem;'),
+    ('color: #a5b4fc;\r\n}',  'color: var(--accent-from);\r\n}'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n}', 'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n}'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    font-weight: 500;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    font-weight: 500;'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.4;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.4;'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    max-width: 600px;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    max-width: 600px;'),
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 2rem;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 2rem;'),
+    # Settings
+    ('color: white;\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.settings-card-desc',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.settings-card-desc'),
+    ('color: white;\r\n    margin-bottom: 0.2rem;\r\n}\r\n\r\n.settings-row-desc',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.2rem;\r\n}\r\n\r\n.settings-row-desc'),
+    # Profile
+    ('color: white;\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.profile-role',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.profile-role'),
+    ('color: #888;\r\n    text-transform: uppercase;',
+     'color: var(--text-faint);\r\n    text-transform: uppercase;'),
+    # Upload
+    ('color: white;\r\n    margin-bottom: 0.25rem;',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.25rem;'),
+    ('color: #ccc;\r\n    font-weight: 500;', 'color: var(--text-muted);\r\n    font-weight: 500;'),
+    ('color: #888;\r\n    min-width: 36px;',  'color: var(--text-faint);\r\n    min-width: 36px;'),
+    ('background: rgba(255, 255, 255, 0.08);\r\n    border-radius: 3px;',
+     'background: var(--bg-surface2);\r\n    border-radius: 3px;'),
+    ('border: 1px solid rgba(255, 255, 255, 0.06);\r\n    border-radius: 12px;',
+     'border: 1px solid var(--border);\r\n    border-radius: 12px;'),
+    ('border-bottom: 1px solid rgba(255, 255, 255, 0.04);\r\n    font-size: 0.875rem;',
+     'border-bottom: 1px solid var(--border);\r\n    font-size: 0.875rem;'),
+    ('background: rgba(255, 255, 255, 0.05);\r\n    padding: 0.2rem 0.6rem;',
+     'background: var(--bg-surface);\r\n    padding: 0.2rem 0.6rem;'),
+    ('border: 1px solid rgba(255, 255, 255, 0.07);\r\n}\r\n\r\n.upload-col-item--highlight',
+     'border: 1px solid var(--border);\r\n}\r\n\r\n.upload-col-item--highlight'),
+    # Settings input
+    ('background: rgba(255, 255, 255, 0.06);\r\n    border: 1px solid rgba(255, 255, 255, 0.1);\r\n    border-radius: 10px;\r\n    color: white;',
+     'background: var(--bg-surface);\r\n    border: 1px solid var(--border);\r\n    border-radius: 10px;\r\n    color: var(--text-primary);'),
+    ('color: #555;\r\n}\r\n\r\n.settings-input-row',
+     'color: var(--text-faint);\r\n}\r\n\r\n.settings-input-row'),
+    ('color: #666;\r\n}\r\n\r\n@media (max-width: 768px)',
+     'color: var(--text-faint);\r\n}\r\n\r\n@media (max-width: 768px)'),
+    # Theme btn
+    ('border: 1px solid rgba(255, 255, 255, 0.12);\r\n    background: rgba(255, 255, 255, 0.05);\r\n    color: #888;',
+     'border: 1px solid var(--border);\r\n    background: var(--bg-surface);\r\n    color: var(--text-faint);'),
+    # Predict
+    ('color: #555;\r\n    text-align: center;\r\n}',
+     'color: var(--text-faint);\r\n    text-align: center;\r\n}'),
+    ('color: rgba(102, 126, 234, 0.25);\r\n}',
+     'color: rgba(var(--accent-rgb), 0.25);\r\n}'),
+    ('color: #666;\r\n}\r\n\r\n.model-info-grid',
+     'color: var(--text-faint);\r\n}\r\n\r\n.model-info-grid'),
+    ('background: rgba(255, 255, 255, 0.04);\r\n    border: 1px solid rgba(255, 255, 255, 0.07);\r\n    border-radius: 12px;',
+     'background: var(--bg-surface);\r\n    border: 1px solid var(--border);\r\n    border-radius: 12px;'),
+    ('color: #888;\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.05em;\r\n    margin-bottom: 0.4rem;',
+     'color: var(--text-faint);\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.05em;\r\n    margin-bottom: 0.4rem;'),
+    # Plan cards
+    ('background: rgba(255, 255, 255, 0.04);\r\n    border: 1px solid rgba(255, 255, 255, 0.08);\r\n    border-radius: 20px;\r\n    padding: 2rem 1.75rem;',
+     'background: var(--bg-surface);\r\n    border: 1px solid var(--border);\r\n    border-radius: 20px;\r\n    padding: 2rem 1.75rem;'),
+    ('border-color: rgba(102, 126, 234, 0.3);\r\n}\r\n\r\n.plan-card--featured',
+     'border-color: rgba(var(--accent-rgb), 0.3);\r\n}\r\n\r\n.plan-card--featured'),
+    ('color: white;\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.plan-price',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.plan-price'),
+    ('color: white;\r\n    line-height: 1;\r\n    margin-bottom: 0.25rem;',
+     'color: var(--text-primary);\r\n    line-height: 1;\r\n    margin-bottom: 0.25rem;'),
+    ('color: #888;\r\n    margin-bottom: 1.75rem;',
+     'color: var(--text-faint);\r\n    margin-bottom: 1.75rem;'),
+    ('.feat-yes { color: #ccc; }',  '.feat-yes { color: var(--text-muted); }'),
+    ('.feat-no  { color: #555; }',  '.feat-no  { color: var(--text-faint); }'),
+    # Settings card
+    ('background: rgba(255, 255, 255, 0.04);\r\n    border: 1px solid rgba(255, 255, 255, 0.07);\r\n    border-radius: 20px;\r\n    overflow: hidden;',
+     'background: var(--bg-surface);\r\n    border: 1px solid var(--border);\r\n    border-radius: 20px;\r\n    overflow: hidden;'),
+    ('color: white;\r\n    line-height: 1.2;',
+     'color: var(--text-primary);\r\n    line-height: 1.2;'),
+    ('border-bottom: 1px solid rgba(255, 255, 255, 0.04);\r\n}\r\n\r\n.settings-row:last-child',
+     'border-bottom: 1px solid var(--border);\r\n}\r\n\r\n.settings-row:last-child'),
+    ('color: white;\r\n    margin-bottom: 0.2rem;\r\n}\r\n\r\n.settings-row-desc',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.2rem;\r\n}\r\n\r\n.settings-row-desc'),
+    ('color: #888;\r\n}\r\n\r\n/* Toggle switch */',
+     'color: var(--text-faint);\r\n}\r\n\r\n/* Toggle switch */'),
+    ('background: rgba(255, 255, 255, 0.12);\r\n    border-radius: 12px;',
+     'background: var(--bg-surface2);\r\n    border-radius: 12px;'),
+    # Quick actions
+    ('background: rgba(255, 255, 255, 0.04);\r\n    border: 1px solid rgba(255, 255, 255, 0.07);\r\n    border-radius: 16px;\r\n    text-decoration: none;\r\n    color: inherit;',
+     'background: var(--bg-surface);\r\n    border: 1px solid var(--border);\r\n    border-radius: 16px;\r\n    text-decoration: none;\r\n    color: inherit;'),
+    # Metric items
+    ('background: rgba(255, 255, 255, 0.05);\r\n    border-radius: 16px;\r\n    border: 1px solid rgba(255, 255, 255, 0.08);',
+     'background: var(--bg-surface);\r\n    border-radius: 16px;\r\n    border: 1px solid var(--border);'),
+    ('background: rgba(102, 126, 234, 0.1);\r\n    border-color: rgba(102, 126, 234, 0.3);',
+     'background: var(--card-hover);\r\n    border-color: var(--card-border-hover);'),
+    ('color: white;\r\n    margin-bottom: 0.4rem;',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.4rem;'),
+    # Quick actions old
+    ('background: rgba(255, 255, 255, 0.04);\r\n    backdrop-filter: blur(20px);\r\n    border-radius: 20px;\r\n    border: 1px solid rgba(255, 255, 255, 0.06);',
+     'background: var(--bg-surface);\r\n    backdrop-filter: blur(20px);\r\n    border-radius: 20px;\r\n    border: 1px solid var(--border);'),
+    ('color: white;\r\n    margin-bottom: 1.75rem;',
+     'color: var(--text-primary);\r\n    margin-bottom: 1.75rem;'),
+    ('color: #b0b0d0;\r\n    border-radius: 16px;\r\n    background: rgba(255, 255, 255, 0.05);\r\n    border: 1.5px solid rgba(255, 255, 255, 0.08);',
+     'color: var(--text-muted);\r\n    border-radius: 16px;\r\n    background: var(--bg-surface);\r\n    border: 1.5px solid var(--border);'),
+    ('background: rgba(102, 126, 234, 0.15);\r\n    border-color: rgba(102, 126, 234, 0.4);\r\n    transform: translateY(-4px);\r\n    color: white;',
+     'background: var(--card-hover);\r\n    border-color: var(--card-border-hover);\r\n    transform: translateY(-4px);\r\n    color: var(--text-primary);'),
+    ('.action-btn i {\r\n    font-size: 2.25rem;\r\n    background: linear-gradient(45deg, #667eea, #764ba2);',
+     '.action-btn i {\r\n    font-size: 2.25rem;\r\n    background: var(--accent-grad);'),
+    # card-desc
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 1.75rem;\r\n}\r\n\r\n.card-desc strong {\r\n    color: #a5b4fc;',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n    line-height: 1.6;\r\n    margin-bottom: 1.75rem;\r\n}\r\n\r\n.card-desc strong {\r\n    color: var(--accent-from);'),
+    # result-card
+    ('border-color: rgba(255, 255, 255, 0.07);\r\n    transition: border-color 0.3s ease;\r\n}\r\n\r\n.result-card--active {\r\n    border-color: rgba(102, 126, 234, 0.4);\r\n    background: rgba(102, 126, 234, 0.06);',
+     'border-color: var(--border);\r\n    transition: border-color 0.3s ease;\r\n}\r\n\r\n.result-card--active {\r\n    border-color: rgba(var(--accent-rgb), 0.4);\r\n    background: rgba(var(--accent-rgb), 0.06);'),
+    # prediction-label
+    ('color: #b0b0d0;\r\n    font-size: 0.9rem;\r\n}\r\n\r\n.prediction-meta',
+     'color: var(--text-muted);\r\n    font-size: 0.9rem;\r\n}\r\n\r\n.prediction-meta'),
+    # prediction-empty
+    ('color: #555;\r\n    text-align: center;\r\n}\r\n\r\n.prediction-empty i',
+     'color: var(--text-faint);\r\n    text-align: center;\r\n}\r\n\r\n.prediction-empty i'),
+    ('color: rgba(102, 126, 234, 0.25);\r\n}\r\n\r\n.prediction-empty p',
+     'color: rgba(var(--accent-rgb), 0.25);\r\n}\r\n\r\n.prediction-empty p'),
+    ('color: #666;\r\n}\r\n\r\n.model-info-grid',
+     'color: var(--text-faint);\r\n}\r\n\r\n.model-info-grid'),
+    # logout btn
+    ('color: #888;\r\n    text-decoration: none;\r\n    font-size: 1rem;\r\n    transition: color 0.2s;\r\n}\r\n\r\n.sidebar-footer .logout-btn:hover',
+     'color: var(--text-faint);\r\n    text-decoration: none;\r\n    font-size: 1rem;\r\n    transition: color 0.2s;\r\n}\r\n\r\n.sidebar-footer .logout-btn:hover'),
+    # qa-arrow
+    ('color: #555;\r\n    font-size: 0.85rem;\r\n    transition: color 0.2s, transform 0.2s;',
+     'color: var(--text-faint);\r\n    font-size: 0.85rem;\r\n    transition: color 0.2s, transform 0.2s;'),
+    # profile-label
+    ('color: #888;\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.05em;\r\n    margin-bottom: 0.5rem;',
+     'color: var(--text-faint);\r\n    text-transform: uppercase;\r\n    letter-spacing: 0.05em;\r\n    margin-bottom: 0.5rem;'),
+    # profile-name
+    ('color: white;\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.profile-role',
+     'color: var(--text-primary);\r\n    margin-bottom: 0.5rem;\r\n}\r\n\r\n.profile-role'),
+    # sidebar toggle
+    ('background: rgba(102, 126, 234, 0.2);\r\n    border: 1px solid rgba(102, 126, 234, 0.3);\r\n    color: white;',
+     'background: rgba(var(--accent-rgb), 0.2);\r\n    border: 1px solid rgba(var(--accent-rgb), 0.3);\r\n    color: var(--text-primary);'),
+    ('background: rgba(102, 126, 234, 0.35);',
+     'background: rgba(var(--accent-rgb), 0.35);'),
+]
+
+content = open('static/css/dashboard.css', encoding='utf-8').read()
+count = 0
+for old, new in replacements:
+    if old in content:
+        content = content.replace(old, new)
+        count += 1
+
+open('static/css/dashboard.css', 'w', encoding='utf-8').write(content)
+print(f"Done. {count} replacements made.")

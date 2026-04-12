@@ -99,12 +99,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.4);
+    background: rgba(var(--accent-rgb), 0.4);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(102, 126, 234, 0.7);
+    background: rgba(var(--accent-rgb), 0.7);
 }
 
 /* ── Sidebar ─────────────────────────────────────────────── */
@@ -219,7 +219,7 @@ body {
 }
 
 .sidebar-footer .logout-btn {
-    color: #888;
+    color: var(--text-faint);
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.2s;
@@ -238,7 +238,7 @@ body {
     z-index: 1100;
     background: rgba(102, 126, 234, 0.2);
     border: 1px solid rgba(102, 126, 234, 0.3);
-    color: white;
+    color: var(--text-primary);
     padding: 0.6rem 0.75rem;
     border-radius: 10px;
     cursor: pointer;
@@ -247,7 +247,7 @@ body {
 }
 
 .sidebar-toggle:hover {
-    background: rgba(102, 126, 234, 0.35);
+    background: rgba(var(--accent-rgb), 0.35);
 }
 
 /* Overlay for mobile sidebar */
@@ -583,7 +583,7 @@ tbody tr:hover td {
 
 .btn.primary {
     background: var(--accent-grad);
-    color: white;
+    color: var(--text-primary);
     box-shadow: 0 6px 20px rgba(99,102,241,0.3);
 }
 
@@ -618,46 +618,46 @@ tbody tr:hover td {
 .metric-item {
     text-align: center;
     padding: 1.5rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-surface);
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
     transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
 }
 
 .metric-item:hover {
     transform: translateY(-5px);
-    background: rgba(102, 126, 234, 0.1);
-    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(var(--accent-rgb), 0.1);
+    border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 .metric-number {
     display: block;
     font-size: 2.25rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.4rem;
     line-height: 1.1;
 }
 
 .metric-label {
-    color: #b0b0d0;
+    color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 /* ── Quick Actions ───────────────────────────────────────── */
 .quick-actions {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-surface);
     backdrop-filter: blur(20px);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
     padding: 2rem;
 }
 
 .quick-actions h3 {
     text-align: center;
     font-size: 1.3rem;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 1.75rem;
     font-weight: 600;
 }
@@ -675,10 +675,10 @@ tbody tr:hover td {
     gap: 0.875rem;
     padding: 1.75rem 1.25rem;
     text-decoration: none;
-    color: #b0b0d0;
+    color: var(--text-muted);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border);
     transition: all 0.25s ease;
     text-align: center;
     font-size: 0.9rem;
@@ -686,15 +686,15 @@ tbody tr:hover td {
 }
 
 .action-btn:hover {
-    background: rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.4);
+    background: rgba(var(--accent-rgb), 0.15);
+    border-color: rgba(var(--accent-rgb), 0.4);
     transform: translateY(-4px);
-    color: white;
+    color: var(--text-primary);
 }
 
 .action-btn i {
     font-size: 2.25rem;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -774,8 +774,8 @@ tbody tr:hover td {
     align-items: center;
     gap: 1.25rem;
     padding: 1.25rem 1.5rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 16px;
     text-decoration: none;
     color: inherit;
@@ -828,7 +828,7 @@ tbody tr:hover td {
 }
 
 .qa-arrow {
-    color: #555;
+    color: var(--text-faint);
     font-size: 0.85rem;
     transition: color 0.2s, transform 0.2s;
 }
@@ -861,14 +861,14 @@ tbody tr:hover td {
 }
 
 .card-desc {
-    color: #b0b0d0;
+    color: var(--text-muted);
     font-size: 0.9rem;
     line-height: 1.6;
     margin-bottom: 1.75rem;
 }
 
 .card-desc strong {
-    color: #a5b4fc;
+    color: var(--accent-from);
 }
 
 .btn.full-width {
@@ -882,8 +882,8 @@ tbody tr:hover td {
 }
 
 .result-card--active {
-    border-color: rgba(102, 126, 234, 0.4);
-    background: rgba(102, 126, 234, 0.06);
+    border-color: rgba(var(--accent-rgb), 0.4);
+    background: rgba(var(--accent-rgb), 0.06);
 }
 
 .prediction-result {
@@ -907,7 +907,7 @@ tbody tr:hover td {
 }
 
 .prediction-label {
-    color: #b0b0d0;
+    color: var(--text-muted);
     font-size: 0.9rem;
 }
 
@@ -926,18 +926,18 @@ tbody tr:hover td {
     justify-content: center;
     padding: 2.5rem 1rem;
     gap: 1rem;
-    color: #555;
+    color: var(--text-faint);
     text-align: center;
 }
 
 .prediction-empty i {
     font-size: 3rem;
-    color: rgba(102, 126, 234, 0.25);
+    color: rgba(var(--accent-rgb), 0.25);
 }
 
 .prediction-empty p {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-faint);
 }
 
 .model-info-grid {
@@ -948,15 +948,15 @@ tbody tr:hover td {
 }
 
 .model-info-item {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1rem 1.25rem;
 }
 
 .model-info-label {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.4rem;
@@ -1003,8 +1003,8 @@ tbody tr:hover td {
 }
 
 .plan-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     padding: 2rem 1.75rem;
     display: flex;
@@ -1016,7 +1016,7 @@ tbody tr:hover td {
 
 .plan-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(102, 126, 234, 0.3);
+    border-color: rgba(var(--accent-rgb), 0.3);
 }
 
 .plan-card--featured {
@@ -1035,7 +1035,7 @@ tbody tr:hover td {
     left: 50%;
     transform: translateX(-50%);
     background: var(--accent-grad);
-    color: white;
+    color: var(--text-primary);
     font-size: 0.72rem;
     font-weight: 700;
     padding: 0.3rem 1rem;
@@ -1057,20 +1057,20 @@ tbody tr:hover td {
 }
 
 .plan-icon--basic      { background: rgba(34, 197, 94, 0.15);  color: #86efac; }
-.plan-icon--pro        { background: linear-gradient(45deg, #667eea, #764ba2); color: white; }
+.plan-icon--pro        { background: var(--accent-grad); color: var(--text-primary); }
 .plan-icon--enterprise { background: rgba(234, 179, 8, 0.15);  color: #fde047; }
 
 .plan-name {
     font-size: 1.1rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .plan-price {
     font-size: 2.5rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     line-height: 1;
     margin-bottom: 0.25rem;
 }
@@ -1084,7 +1084,7 @@ tbody tr:hover td {
 
 .plan-period {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-faint);
     margin-bottom: 1.75rem;
 }
 
@@ -1104,8 +1104,8 @@ tbody tr:hover td {
     font-size: 0.875rem;
 }
 
-.feat-yes { color: #ccc; }
-.feat-no  { color: #555; }
+.feat-yes { color: var(--text-muted); }
+.feat-no  { color: var(--text-faint); }
 
 .feat-yes i { color: #22c55e; font-size: 0.75rem; }
 .feat-no  i { color: #ef4444; font-size: 0.75rem; }
@@ -1117,8 +1117,8 @@ tbody tr:hover td {
 
 /* ── Settings page ───────────────────────────────────────── */
 .settings-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 20px;
     overflow: hidden;
 }
@@ -1140,13 +1140,13 @@ tbody tr:hover td {
 .settings-card-title {
     font-size: 1rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     line-height: 1.2;
 }
 
 .settings-card-desc {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-faint);
     margin-top: 0.15rem;
 }
 
@@ -1161,7 +1161,7 @@ tbody tr:hover td {
     justify-content: space-between;
     gap: 1.5rem;
     padding: 1.25rem 1.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border);
 }
 
 .settings-row:last-child {
@@ -1177,13 +1177,13 @@ tbody tr:hover td {
 .settings-row-label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.2rem;
 }
 
 .settings-row-desc {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-faint);
 }
 
 /* Toggle switch */
@@ -1205,7 +1205,7 @@ tbody tr:hover td {
     display: block;
     width: 44px;
     height: 24px;
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bg-surface2);
     border-radius: 12px;
     transition: background 0.25s ease;
     position: relative;
@@ -1246,8 +1246,8 @@ tbody tr:hover td {
     font-size: 0.85rem;
     font-weight: 500;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.05);
-    color: #888;
+    background: var(--bg-surface);
+    color: var(--text-faint);
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -1263,10 +1263,10 @@ tbody tr:hover td {
 .settings-input {
     width: 100%;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: white;
+    color: var(--text-primary);
     font-size: 0.9rem;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -1278,7 +1278,7 @@ tbody tr:hover td {
 }
 
 .settings-input::placeholder {
-    color: #555;
+    color: var(--text-faint);
 }
 
 .settings-input-row {
@@ -1301,7 +1301,7 @@ tbody tr:hover td {
 
 .settings-save-hint {
     font-size: 0.8rem;
-    color: #666;
+    color: var(--text-faint);
 }
 
 @media (max-width: 768px) {
@@ -1367,20 +1367,20 @@ tbody tr:hover td {
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    color: white;
+    color: var(--text-primary);
 }
 
 .drop-zone-text strong {
     display: block;
     font-size: 0.95rem;
     font-weight: 600;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
 }
 
 .drop-zone-text span {
     font-size: 0.82rem;
-    color: #888;
+    color: var(--text-faint);
 }
 
 /* Selected file info bar */
@@ -1436,7 +1436,7 @@ tbody tr:hover td {
 .progress-bar {
     flex: 1;
     height: 6px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-surface2);
     border-radius: 3px;
     overflow: hidden;
 }
@@ -1444,14 +1444,14 @@ tbody tr:hover td {
 .progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: var(--accent-grad);
     border-radius: 3px;
     transition: width 0.15s ease;
 }
 
 .upload-progress span {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--text-faint);
     min-width: 36px;
     text-align: right;
 }
@@ -1468,7 +1468,7 @@ tbody tr:hover td {
     display: flex;
     flex-direction: column;
     gap: 0;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
     margin-top: 0.5rem;
@@ -1479,7 +1479,7 @@ tbody tr:hover td {
     align-items: center;
     justify-content: space-between;
     padding: 0.7rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border);
     font-size: 0.875rem;
 }
 
@@ -1492,17 +1492,17 @@ tbody tr:hover td {
 }
 
 .upload-col-name {
-    color: #ccc;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
 .upload-col-type {
     font-size: 0.75rem;
-    color: #888;
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-faint);
+    background: var(--bg-surface);
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--border);
 }
 
 .upload-col-item--highlight .upload-col-type {
@@ -1539,7 +1539,7 @@ tbody tr:hover td {
     justify-content: center;
     font-size: 2rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     flex-shrink: 0;
     box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.4);
 }
@@ -1552,7 +1552,7 @@ tbody tr:hover td {
 .profile-name {
     font-size: 1.6rem;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
@@ -1581,7 +1581,7 @@ tbody tr:hover td {
     display: block;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #888;
+    color: var(--text-faint);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 0.5rem;
