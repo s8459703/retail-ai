@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Analysis — Retail AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .filter-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-faint);
+        }
+        .filter-select {
+            padding: 0.65rem 1rem;
+            background: var(--bg-surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus { border-color: var(--accent-from); }
+        .filter-select option { background: #1a1a3e; color: white; }
+        .filter-select:disabled { opacity: 0.4; cursor: not-allowed; }
+        .results-section { display: none; }
+        .results-section.visible { display: contents; }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-faint);
+        }
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        .loading-spinner i { font-size: 2rem; }
+    </style>
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('home_inner') }}" class="nav-item"><i class="fas fa-house"></i> Home</a>
+        <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{{ url_for('product') }}" class="nav-item active"><i class="fas fa-boxes-stacked"></i> Products</a>
+        <a href="{{ url_for('categories') }}" class="nav-item"><i class="fas fa-th-large"></i> Categories</a>
+        <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+        <a href="{{ url_for('predict') }}" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+        <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+        <a href="/settings" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="avatar">{{ session['user'][0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session['user'] }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-right-from-bracket"></i></a>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="topbar">
+        <div class="topbar-left"><h2><i class="fas fa-boxes-stacked"></i> Product Analysis</h2></div>
+        <div class="topbar-right">
+            <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h1><i class="fas fa-boxes-stacked"></i> Product Analysis</h1>
+        <p>Select filters below and click <strong>Analyse</strong> to see revenue, transactions, and brand insights.</p>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="filter-card">
+        <div class="filter-grid">
+
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <select id="selCategory" class="filter-select">
+                    <option value="All">All Categories</option>
+                    {% for c in categories %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Sub Category</label>
+                <select id="selSub" class="filter-select" disabled>
+                    <option value="All">All Sub Categories</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Brand</label>
+                <select id="selBrand" class="filter-select" disabled>
+                    <option value="All">All Brands</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">City</label>
+                <select id="selCity" class="filter-select">
+                    <option value="All">All Cities</option>
+                    {% for c in cities %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+            <button id="btnAnalyse" class="btn primary" style="min-width:140px;">
+                <i class="fas fa-magnifying-glass-chart"></i> Analyse
+            </button>
+            <button id="btnReset" class="btn secondary">
+                <i class="fas fa-rotate-left"></i> Reset
+            </button>
+            <span id="filterSummary" style="font-size:0.82rem;color:var(--text-faint);"></span>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p style="margin-top:0.5rem;">Analysing data...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="filter-card" style="display:none;">
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <p>No results found for the selected filters.</p>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection" style="display:none;">
+
+        <!-- KPI Cards -->
+        <div class="stats-grid" id="kpiCards">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" id="kpiRevenue">—</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" id="kpiOrders">—</div>
+                    <div class="stat-label">Transactions</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value" id="kpiAvg">—</div>
+                    <div class="stat-label">Avg. Order Value</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:linear-gradient(45deg,#f093fb,#f5576c);">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value stat-value--sm" id="kpiTopBrand">—</div>
+                    <div class="stat-label">Top Brand</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3><i class="fas fa-tags"></i> Revenue by Brand</h3>
+                <canvas id="brandChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Category Distribution</h3>
+                <canvas id="catChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="chart-card">
+            <h3><i class="fas fa-map-marker-alt"></i> Revenue by City</h3>
+            <canvas id="cityChart"></canvas>
+        </div>
+
+    </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+(function() {
+    const selCat   = document.getElementById("selCategory");
+    const selSub   = document.getElementById("selSub");
+    const selBrand = document.getElementById("selBrand");
+    const selCity  = document.getElementById("selCity");
+    const btnAnalyse = document.getElementById("btnAnalyse");
+    const btnReset   = document.getElementById("btnReset");
+    const summary    = document.getElementById("filterSummary");
+    const spinner    = document.getElementById("loadingSpinner");
+    const results    = document.getElementById("resultsSection");
+    const emptyState = document.getElementById("emptyState");
+
+    let brandChart, catChart, cityChart;
+
+    // ── Cascading dropdowns ──────────────────────────────
+    selCat.addEventListener("change", async () => {
+        const cat = selCat.value;
+        selSub.disabled = true;
+        selBrand.disabled = true;
+        selSub.innerHTML   = '<option value="All">All Sub Categories</option>';
+        selBrand.innerHTML = '<option value="All">All Brands</option>';
+
+        if (cat !== "All") {
+            const subs = await fetch(`/api/subcategories?category=${encodeURIComponent(cat)}`).then(r => r.json());
+            subs.forEach(s => selSub.add(new Option(s, s)));
+            selSub.disabled = false;
+        }
+        updateSummary();
+    });
+
+    selSub.addEventListener("change", async () => {
+        const cat = selCat.value;
+        const sub = selSub.value;
+        selBrand.disabled = true;
+        selBrand.innerHTML = '<option value="All">All Brands</option>';
+
+        if (sub !== "All") {
+            const brands = await fetch(`/api/brands?category=${encodeURIComponent(cat)}&sub_category=${encodeURIComponent(sub)}`).then(r => r.json());
+            brands.forEach(b => selBrand.add(new Option(b, b)));
+            selBrand.disabled = false;
+        }
+        updateSummary();
+    });
+
+    selBrand.addEventListener("change", updateSummary);
+    selCity.addEventListener("change", updateSummary);
+
+    function updateSummary() {
+        const parts = [];
+        if (selCat.value   !== "All") parts.push(selCat.value);
+        if (selSub.value   !== "All") parts.push(selSub.value);
+        if (selBrand.value !== "All") parts.push(selBrand.value);
+        if (selCity.value  !== "All") parts.push(selCity.value);
+        summary.textContent = parts.length ? `Filtering: ${parts.join(" → ")}` : "";
+    }
+
+    // ── Analyse ──────────────────────────────────────────
+    btnAnalyse.addEventListener("click", async () => {
+        spinner.style.display = "block";
+        results.style.display = "none";
+        emptyState.style.display = "none";
+
+        const params = new URLSearchParams({
+            category:    selCat.value,
+            sub_category: selSub.value,
+            brand:       selBrand.value,
+            city:        selCity.value,
+        });
+
+        const data = await fetch(`/api/product_analysis?${params}`).then(r => r.json());
+        spinner.style.display = "none";
+
+        if (data.empty) {
+            emptyState.style.display = "block";
+            return;
+        }
+
+        // KPIs
+        document.getElementById("kpiRevenue").textContent  = "₹" + data.total_revenue.toLocaleString();
+        document.getElementById("kpiOrders").textContent   = data.total_orders.toLocaleString();
+        document.getElementById("kpiAvg").textContent      = "₹" + data.avg_order.toLocaleString();
+        document.getElementById("kpiTopBrand").textContent = data.top_brand;
+
+        results.style.display = "block";
+
+        const style    = getComputedStyle(document.documentElement);
+        const accent   = style.getPropertyValue("--accent-from").trim() || "#6366f1";
+        const accentRgb = style.getPropertyValue("--accent-rgb").trim() || "99,102,241";
+        const dg = "rgba(255,255,255,0.05)";
+        const tc = style.getPropertyValue("--text-faint").trim() || "#888";
+        const lo = { labels: { color: style.getPropertyValue("--text-muted").trim() || "#aaa", padding: 14 } };
+        const ys = { ticks: { color: tc, callback: v => "₹" + v.toLocaleString() }, grid: { color: dg } };
+        const xs = { ticks: { color: tc }, grid: { color: dg } };
+
+        // Destroy old charts
+        [brandChart, catChart, cityChart].forEach(c => c && c.destroy());
+
+        brandChart = new Chart(document.getElementById("brandChart"), {
+            type: "bar",
+            data: {
+                labels: data.brand_labels,
+                datasets: [{ label: "Revenue (₹)", data: data.brand_sales,
+                    backgroundColor: `rgba(${accentRgb},0.75)`, borderColor: accent,
+                    borderWidth: 1, borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { legend: lo }, scales: { x: xs, y: ys } }
+        });
+
+        catChart = new Chart(document.getElementById("catChart"), {
+            type: "doughnut",
+            data: {
+                labels: data.cat_labels,
+                datasets: [{ data: data.cat_sales,
+                    backgroundColor: ["#6366f1","#f093fb","#4facfe","#43e97b","#fa709a","#fee140"],
+                    borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }]
+            },
+            options: { responsive: true, plugins: { legend: lo } }
+        });
+
+        cityChart = new Chart(document.getElementById("cityChart"), {
+            type: "bar",
+            data: {
+                labels: data.city_labels,
+                datasets: [{ label: "Revenue (₹)", data: data.city_sales,
+                    backgroundColor: "rgba(79,172,254,0.75)", borderColor: "#4facfe",
+                    borderWidth: 1, borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { legend: lo }, scales: { x: xs, y: ys } }
+        });
+    });
+
+    // ── Reset ────────────────────────────────────────────
+    btnReset.addEventListener("click", () => {
+        selCat.value   = "All";
+        selSub.innerHTML   = '<option value="All">All Sub Categories</option>';
+        selBrand.innerHTML = '<option value="All">All Brands</option>';
+        selCity.value  = "All";
+        selSub.disabled = true;
+        selBrand.disabled = true;
+        summary.textContent = "";
+        results.style.display = "none";
+        emptyState.style.display = "none";
+    });
+})();
+</script>
+</body>
+</html>

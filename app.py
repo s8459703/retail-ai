@@ -488,6 +488,79 @@ def filter_view():
     )
 
 
+@app.route("/product")
+@login_required
+def product():
+    try:
+        df = load_data()
+        categories = sorted(df["Category"].unique().tolist())
+        cities     = sorted(df["Place"].unique().tolist())
+    except Exception as e:
+        return render_template("error.html", message=f"Failed: {e}"), 500
+    return render_template("product.html", categories=categories, cities=cities)
+
+
+@app.route("/api/subcategories")
+@login_required
+def api_subcategories():
+    from flask import jsonify
+    category = request.args.get("category", "")
+    df = load_data()
+    if category:
+        subs = sorted(df[df["Category"] == category]["Sub Category"].unique().tolist())
+    else:
+        subs = sorted(df["Sub Category"].unique().tolist())
+    return jsonify(subs)
+
+
+@app.route("/api/brands")
+@login_required
+def api_brands():
+    from flask import jsonify
+    category = request.args.get("category", "")
+    sub      = request.args.get("sub_category", "")
+    df = load_data()
+    if category:
+        df = df[df["Category"] == category]
+    if sub:
+        df = df[df["Sub Category"] == sub]
+    brands = sorted(df["Brand"].unique().tolist())
+    return jsonify(brands)
+
+
+@app.route("/api/product_analysis")
+@login_required
+def api_product_analysis():
+    from flask import jsonify
+    category = request.args.get("category", "All")
+    sub      = request.args.get("sub_category", "All")
+    brand    = request.args.get("brand", "All")
+    city     = request.args.get("city", "All")
+    df = load_data()
+    if category != "All": df = df[df["Category"] == category]
+    if sub      != "All": df = df[df["Sub Category"] == sub]
+    if brand    != "All": df = df[df["Brand"] == brand]
+    if city     != "All": df = df[df["Place"] == city]
+    if df.empty:
+        return jsonify({"empty": True})
+    brand_rev   = df.groupby("Brand")["Total Amount"].sum().sort_values(ascending=False)
+    city_rev    = df.groupby("Place")["Total Amount"].sum().sort_values(ascending=False)
+    cat_rev     = df.groupby("Category")["Total Amount"].sum().sort_values(ascending=False)
+    return jsonify({
+        "empty":        False,
+        "total_revenue": round(float(df["Total Amount"].sum()), 2),
+        "total_orders":  len(df),
+        "avg_order":     round(float(df["Total Amount"].mean()), 2),
+        "top_brand":     brand_rev.index[0] if len(brand_rev) else "—",
+        "brand_labels":  brand_rev.head(8).index.tolist(),
+        "brand_sales":   [round(float(v), 2) for v in brand_rev.head(8).values],
+        "city_labels":   city_rev.index.tolist(),
+        "city_sales":    [round(float(v), 2) for v in city_rev.values],
+        "cat_labels":    cat_rev.index.tolist(),
+        "cat_sales":     [round(float(v), 2) for v in cat_rev.values],
+    })
+
+
 @app.route("/categories")
 @login_required
 def categories():
