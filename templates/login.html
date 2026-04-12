@@ -1,128 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — Retail AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script>
-        (function(){
-            var t = localStorage.getItem("retailai-theme") || "dark";
-            document.documentElement.setAttribute("data-theme", t);
-        })();
-    </script>
+    <script>(function(){ document.documentElement.setAttribute("data-theme", localStorage.getItem("retailai-theme") || "dark"); })();</script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #050510;
+            color: #e0e7ff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #space-canvas {
+            position: fixed; inset: 0;
+            z-index: 0; pointer-events: none;
+        }
+
+        .login-wrap {
+            position: relative; z-index: 1;
+            display: flex;
+            width: min(960px, 96vw);
+            min-height: 560px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(99,102,241,0.25);
+            box-shadow:
+                0 0 0 1px rgba(99,102,241,0.1),
+                0 24px 80px rgba(0,0,0,0.6),
+                0 0 60px rgba(99,102,241,0.12);
+            animation: loginFadeIn 0.7s ease both;
+        }
+
+        @keyframes loginFadeIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Left panel ── */
+        .panel-left {
+            width: 50%;
+            padding: 3rem 2.5rem;
+            background: rgba(8,8,28,0.85);
+            backdrop-filter: blur(24px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid rgba(99,102,241,0.15);
+        }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.8rem; color: rgba(99,102,241,0.7);
+            text-decoration: none; margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #a5b4fc; }
+
+        .brand {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            letter-spacing: 0.1em;
+            background: linear-gradient(90deg, #6366f1, #a78bfa, #38bdf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 10px rgba(99,102,241,0.5));
+        }
+
+        .panel-left h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem; font-weight: 700;
+            background: linear-gradient(90deg, #e0e7ff, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+
+        .subtitle {
+            font-size: 0.85rem; color: rgba(148,163,184,0.7);
+            margin-bottom: 2rem; letter-spacing: 0.02em;
+        }
+
+        .alert-error {
+            padding: 0.75rem 1rem; border-radius: 10px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-field {
+            position: relative; margin-bottom: 1rem;
+        }
+
+        .form-field i.icon {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: rgba(99,102,241,0.6); font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .form-field input {
+            width: 100%; padding: 13px 14px 13px 42px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 10px;
+            color: #e0e7ff; font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .form-field input:focus {
+            border-color: rgba(99,102,241,0.6);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15),
+                        0 0 20px rgba(99,102,241,0.1);
+        }
+
+        .form-field input::placeholder { color: rgba(148,163,184,0.4); }
+
+        .toggle-pw {
+            position: absolute; right: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: rgba(99,102,241,0.5); cursor: pointer;
+            font-size: 0.9rem; transition: color 0.2s;
+        }
+        .toggle-pw:hover { color: #a5b4fc; }
+
+        .btn-submit {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: 1px solid rgba(99,102,241,0.4);
+            border-radius: 10px; color: #fff;
+            font-size: 0.95rem; font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer; margin-top: 0.5rem;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative; overflow: hidden;
+        }
+        .btn-submit::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .btn-submit:hover::after { opacity: 1; }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(99,102,241,0.6),
+                        0 0 60px rgba(99,102,241,0.2);
+        }
+
+        .divider {
+            display: flex; align-items: center; gap: 0.75rem;
+            margin: 1.25rem 0; color: rgba(99,102,241,0.4); font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: ""; flex: 1; height: 1px;
+            background: rgba(99,102,241,0.15);
+        }
+
+        .social-icons { display: flex; gap: 0.75rem; }
+
+        .social-icon {
+            width: 44px; height: 44px;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(148,163,184,0.7); font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+        .social-icon:hover {
+            background: rgba(99,102,241,0.18);
+            border-color: rgba(99,102,241,0.5);
+            color: #a5b4fc;
+            box-shadow: 0 0 16px rgba(99,102,241,0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-footer {
+            margin-top: 1.25rem; font-size: 0.83rem;
+            color: rgba(148,163,184,0.6);
+        }
+        .form-footer a { color: #818cf8; text-decoration: none; font-weight: 600; }
+        .form-footer a:hover { color: #a5b4fc; text-decoration: underline; }
+
+        /* ── Right panel ── */
+        .panel-right {
+            width: 50%;
+            background: rgba(5,5,20,0.7);
+            backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 2rem;
+            position: relative; overflow: hidden;
+        }
+
+        .panel-right::before {
+            content: "";
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 70% 60% at 50% 30%, rgba(99,102,241,0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 80% 80%, rgba(139,92,246,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .panel-right-content {
+            position: relative; z-index: 1;
+            text-align: center;
+        }
+
+        .panel-right-icon {
+            width: 80px; height: 80px; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3));
+            border: 1px solid rgba(99,102,241,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; margin: 0 auto 1.5rem;
+            box-shadow: 0 0 30px rgba(99,102,241,0.4),
+                        0 0 60px rgba(99,102,241,0.15);
+            animation: iconPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(99,102,241,0.4), 0 0 60px rgba(99,102,241,0.15); }
+            50%       { box-shadow: 0 0 50px rgba(99,102,241,0.7), 0 0 100px rgba(99,102,241,0.25); }
+        }
+
+        .panel-right-content h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(90deg, #e0e7ff, #a78bfa, #38bdf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; margin-bottom: 0.75rem;
+        }
+
+        .panel-right-content p {
+            font-size: 0.875rem; color: rgba(148,163,184,0.7);
+            line-height: 1.6; margin-bottom: 2rem; max-width: 260px;
+            margin-left: auto; margin-right: auto;
+        }
+
+        .stats-row {
+            display: flex; justify-content: center; gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 12px; padding: 0.75rem 1.25rem;
+            min-width: 80px;
+        }
+
+        .stat-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem; font-weight: 700;
+            background: linear-gradient(90deg, #a78bfa, #38bdf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-lbl {
+            font-size: 0.68rem; color: rgba(99,102,241,0.6);
+            text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem;
+        }
+
+        .info-list {
+            font-size: 0.75rem; color: rgba(148,163,184,0.6);
+            line-height: 2; text-align: left; display: inline-block;
+        }
+
+        .info-list i { color: #6366f1; margin-right: 6px; }
+
+        @media (max-width: 700px) {
+            .login-wrap { flex-direction: column; }
+            .panel-left, .panel-right { width: 100%; }
+            .panel-right { display: none; }
+        }
+    </style>
 </head>
-
 <body>
-    <div class="page-center">
-        <div class="split-card">
 
-            <!-- Left panel — form -->
-            <div class="panel-left">
+<canvas id="space-canvas"></canvas>
 
-                <a href="{{ url_for('home') }}" class="back-link">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
+<div class="login-wrap">
 
-                <div class="panel-brand">
-                    <i class="fas fa-store"></i> Retail AI
-                </div>
+    <!-- Left -->
+    <div class="panel-left">
+        <a href="{{ url_for('home') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
 
-                <h1>Welcome back</h1>
-                <p class="subtitle">Sign in to your account to continue</p>
+        <div class="brand"><i class="fas fa-satellite-dish"></i> &nbsp;RETAIL AI</div>
 
-                {% if error %}
-                <div class="alert alert-error">
-                    <i class="fas fa-circle-exclamation"></i> {{ error }}
-                </div>
-                {% endif %}
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Access your AI analytics control panel</p>
 
-                <form method="POST" action="{{ url_for('login') }}" novalidate>
-                    <div class="form-field">
-                        <i class="fas fa-user"></i>
-                        <input type="text" name="username" placeholder="Username" required autocomplete="username"
-                            autofocus>
-                    </div>
+        {% if error %}
+        <div class="alert-error">
+            <i class="fas fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
 
-                    <div class="form-field">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" name="password" id="loginPassword" placeholder="Password" required
-                            autocomplete="current-password">
-                        <span class="toggle-pw" id="togglePw" aria-label="Toggle password visibility">
-                            <i class="fas fa-eye" id="eyeIcon"></i>
-                        </span>
-                    </div>
-
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-right-to-bracket"></i> Sign In
-                    </button>
-                </form>
-
-                <div class="form-divider"><span>or</span></div>
-
-                <div class="social-icons">
-                    <a href="{{ url_for('google.login') }}" class="social-icon" title="Continue with Google">
-                        <i class="fab fa-google"></i>
-                    </a>
-                    <a href="#" class="social-icon" title="Continue with GitHub">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="social-icon" title="Continue with Microsoft">
-                        <i class="fab fa-microsoft"></i>
-                    </a>
-                </div>
-
-                <p class="form-footer">
-                    Don't have an account? <a href="{{ url_for('register') }}">Create one</a>
-                </p>
-
+        <form method="POST" action="{{ url_for('login') }}" novalidate>
+            <div class="form-field">
+                <i class="fas fa-user icon"></i>
+                <input type="text" name="username" placeholder="Username"
+                       required autocomplete="username" autofocus>
             </div>
+            <div class="form-field">
+                <i class="fas fa-lock icon"></i>
+                <input type="password" name="password" id="loginPassword"
+                       placeholder="Password" required autocomplete="current-password">
+                <span class="toggle-pw" id="togglePw">
+                    <i class="fas fa-eye" id="eyeIcon"></i>
+                </span>
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-right-to-bracket"></i> Sign In
+            </button>
+        </form>
 
-            <!-- Right panel — visual -->
-            <div class="panel-right">
-                <div class="panel-right-content">
-                    <div class="panel-right-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h2>Retail AI</h2>
-                    <p>Smart Sales Forecasting &amp; Analytics powered by machine learning</p>
-                    <div class="panel-right-stats">
-                        <div class="pr-stat">
-                            <div class="pr-stat-val">1,000</div>
-                            <div class="pr-stat-lbl">Transactions</div>
-                        </div>
-                        <div class="pr-stat">
-                            <div class="pr-stat-val">3</div>
-                            <div class="pr-stat-lbl">Categories</div>
-                        </div>
-                        <div class="pr-stat">
-                            <div class="pr-stat-val">6</div>
-                            <div class="pr-stat-lbl">Cities</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:1.5rem; font-size:0.78rem; color:#666; line-height:1.8;">
-                        <div><i class="fas fa-tag" style="color:#667eea; margin-right:6px;"></i> Categories: Beauty · Clothing · Electronics</div>
-                        <div><i class="fas fa-map-marker-alt" style="color:#667eea; margin-right:6px;"></i> Cities: Delhi · Mumbai · Bangalore · Chennai · Hyderabad · Coimbatore</div>
-                        <div><i class="fas fa-calendar" style="color:#667eea; margin-right:6px;"></i> Period: 2023 – 2024</div>
-                        <div><i class="fas fa-rupee-sign" style="color:#667eea; margin-right:6px;"></i> Total Revenue: ₹26,98,170</div>
-                    </div>
+        <div class="divider"><span>or continue with</span></div>
+
+        <div class="social-icons">
+            <a href="{{ url_for('google.login') }}" class="social-icon" title="Google">
+                <i class="fab fa-google"></i>
+            </a>
+            <a href="#" class="social-icon" title="GitHub">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="#" class="social-icon" title="Microsoft">
+                <i class="fab fa-microsoft"></i>
+            </a>
+        </div>
+
+        <p class="form-footer">
+            No account? <a href="{{ url_for('register') }}">Create one</a>
+        </p>
+    </div>
+
+    <!-- Right -->
+    <div class="panel-right">
+        <div class="panel-right-content">
+            <div class="panel-right-icon">
+                <i class="fas fa-chart-line" style="color:#a78bfa;"></i>
+            </div>
+            <h2>Retail AI</h2>
+            <p>AI-powered sales forecasting &amp; analytics for modern retail businesses</p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-val">1,000</div>
+                    <div class="stat-lbl">Transactions</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">6</div>
+                    <div class="stat-lbl">Categories</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">5</div>
+                    <div class="stat-lbl">Cities</div>
                 </div>
             </div>
 
+            <div class="info-list">
+                <div><i class="fas fa-tag"></i> Beauty · Clothing · Electronics · Grocery · Home · Sports</div>
+                <div><i class="fas fa-map-marker-alt"></i> Salem · Madurai · Chennai · Coimbatore · Trichy</div>
+                <div><i class="fas fa-calendar"></i> Period: 2024</div>
+                <div><i class="fas fa-rupee-sign"></i> Total Revenue: ₹77.2L</div>
+            </div>
         </div>
     </div>
 
-    <script>
-        document.getElementById("togglePw").addEventListener("click", () => {
-            const input = document.getElementById("loginPassword");
-            const icon = document.getElementById("eyeIcon");
-            const hidden = input.type === "password";
-            input.type = hidden ? "text" : "password";
-            icon.className = hidden ? "fas fa-eye-slash" : "fas fa-eye";
-        });
-    </script>
-</body>
+</div>
 
+<script src="{{ url_for('static', filename='js/space-particles.js') }}" defer></script>
+<script>
+    document.getElementById("togglePw").addEventListener("click", () => {
+        const input = document.getElementById("loginPassword");
+        const icon  = document.getElementById("eyeIcon");
+        const hide  = input.type === "password";
+        input.type     = hide ? "text" : "password";
+        icon.className = hide ? "fas fa-eye-slash" : "fas fa-eye";
+    });
+</script>
+</body>
 </html>
