@@ -1,0 +1,43 @@
+=== ALL ROUTES ===
+  /
+  /api/brands
+  /api/product_analysis
+  /api/subcategories
+  /categories
+  /category/<category>
+  /dashboard
+  /filter
+  /future
+  /google_auth/google
+  /google_auth/google/authorized
+  /google_login_callback
+  /home
+  /login
+  /logout
+  /predict
+  /premium
+  /product
+  /profile
+  /register
+  /settings
+  /subcategory/<category>/<subcategory>
+  /subcategory/<category>/<subcategory>/export
+  /upload
+  /upload/reset
+  /welcome
+
+=== PAGE STATUS ===
+  OK   200  Dashboard             /dashboard
+  OK   200  Product Analysis      /product
+  OK   200  Categories            /categories
+  OK   200  Category Detail       /category/Clothing
+  OK   200  Subcategory           /subcategory/Clothing/Men
+  OK   200  Forecast              /future
+  OK   200  Prediction            /predict
+  OK   200  Filter                /filter
+  OK   200  Upload                /upload
+  OK   200  Settings              /settings
+  OK   200  Profile               /profile
+  OK   200  API Subcategories     /api/subcategories?category=Clothing
+  OK   200  API Brands            /api/brands?category=Clothing&sub_category=Men
+  OK   200  API Analysis          /api/product_analysis?category=Clothing

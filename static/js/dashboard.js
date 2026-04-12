@@ -31,12 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function initCharts() {
     const style      = getComputedStyle(document.documentElement);
     const accentFrom = style.getPropertyValue("--accent-from").trim() || "#6366f1";
+    const accentTo   = style.getPropertyValue("--accent-to").trim()   || "#8b5cf6";
     const accentRgb  = style.getPropertyValue("--accent-rgb").trim()  || "99,102,241";
     const tickColor  = style.getPropertyValue("--text-faint").trim()  || "#888";
     const textMuted  = style.getPropertyValue("--text-muted").trim()  || "rgba(255,255,255,0.75)";
-    const PALETTE    = [accentFrom,"#8b5cf6","#f093fb","#4facfe","#43e97b","#fa709a","#fee140","#30cfd0","#a18cd1","#fda085"];
-    const darkGrid   = "rgba(255,255,255,0.05)";
-    const lo         = { labels: { color: textMuted, padding: 16 } };
+    const PALETTE    = [accentFrom, accentTo, "#f093fb", "#4facfe", "#43e97b", "#fa709a", "#fee140", "#30cfd0", "#a18cd1", "#fda085"];
+    const darkGrid   = "rgba(255,255,255,0.04)";
+    const lo         = { labels: { color: textMuted, padding: 16, font: { size: 12 } } };
     const tick       = (v) => "\u20b9" + v.toLocaleString();
     const xs         = { ticks: { color: tickColor }, grid: { color: darkGrid } };
     const ys         = { ticks: { color: tickColor, callback: tick }, grid: { color: darkGrid } };
@@ -47,16 +48,31 @@ function initCharts() {
         try { return JSON.parse(el.textContent); } catch(e) { return []; }
     }
 
+    function gradient(el, rgb, alpha1, alpha2) {
+        try {
+            const ctx = el.getContext("2d");
+            const h   = el.parentElement ? el.parentElement.offsetHeight : 300;
+            const g   = ctx.createLinearGradient(0, 0, 0, h);
+            g.addColorStop(0,   "rgba(" + rgb + "," + alpha1 + ")");
+            g.addColorStop(1,   "rgba(" + rgb + "," + alpha2 + ")");
+            return g;
+        } catch(e) { return "rgba(" + rgb + ",0.7)"; }
+    }
+
     function bar(id, labels, data, color, rgb) {
         const el = document.getElementById(id);
         if (!el || !labels || !labels.length) return;
         new Chart(el, {
             type: "bar",
             data: { labels, datasets: [{ label: "Revenue (\u20b9)", data,
-                backgroundColor: "rgba(" + rgb + ",0.75)", borderColor: color,
-                borderWidth: 1, borderRadius: 6 }] },
+                backgroundColor: gradient(el, rgb, 0.85, 0.25),
+                borderColor: color, borderWidth: 1, borderRadius: 10,
+                hoverBackgroundColor: "rgba(" + rgb + ",1)",
+                hoverBorderColor: color, hoverBorderWidth: 2 }] },
             options: { responsive: true, maintainAspectRatio: true,
-                plugins: { legend: lo }, scales: { x: xs, y: ys } }
+                animation: { duration: 900, easing: "easeOutQuart" },
+                plugins: { legend: lo },
+                scales: { x: xs, y: ys } }
         });
     }
 
@@ -67,8 +83,11 @@ function initCharts() {
             type: "doughnut",
             data: { labels, datasets: [{ data,
                 backgroundColor: colors || PALETTE,
-                borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }] },
+                borderWidth: 3,
+                borderColor: "rgba(10,10,30,0.6)",
+                hoverOffset: 8 }] },
             options: { responsive: true, maintainAspectRatio: true,
+                animation: { duration: 900, easing: "easeOutQuart" },
                 plugins: { legend: lo } }
         });
     }
@@ -76,18 +95,30 @@ function initCharts() {
     function line(id, labels, data, color, rgb) {
         const el = document.getElementById(id);
         if (!el || !labels || !labels.length) return;
+        const ctx = el.getContext("2d");
+        const fillGrad = ctx.createLinearGradient(0, 0, 0, el.parentElement ? el.parentElement.offsetHeight : 300);
+        fillGrad.addColorStop(0, "rgba(" + rgb + ",0.35)");
+        fillGrad.addColorStop(1, "rgba(" + rgb + ",0.0)");
         new Chart(el, {
             type: "line",
             data: { labels, datasets: [{ label: "Revenue (\u20b9)", data,
-                borderColor: color, backgroundColor: "rgba(" + rgb + ",0.12)",
-                borderWidth: 2, pointBackgroundColor: color,
-                pointRadius: 4, tension: 0.4, fill: true }] },
+                borderColor: color,
+                backgroundColor: fillGrad,
+                borderWidth: 2.5,
+                pointBackgroundColor: color,
+                pointBorderColor: "rgba(10,10,30,0.8)",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                tension: 0.45, fill: true }] },
             options: { responsive: true, maintainAspectRatio: true,
-                plugins: { legend: lo }, scales: { x: xs, y: ys } }
+                animation: { duration: 900, easing: "easeOutQuart" },
+                plugins: { legend: lo },
+                scales: { x: xs, y: ys } }
         });
     }
 
-    // Dashboard
+    // Dashboard charts
     bar  ("barChart",    read("data-categories"),    read("data-category-sales"), accentFrom, accentRgb);
     donut("pieChart",    read("data-categories"),    read("data-category-sales"));
     line ("lineChart",   read("data-monthly-labels"),read("data-monthly-sales"),  accentFrom, accentRgb);
@@ -414,3 +445,31 @@ function escapeHtml(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
+
+/* ── Chart.js global glow defaults ──────────────────────── */
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof Chart === 'undefined') return;
+    Chart.defaults.animation = { duration: 900, easing: 'easeOutQuart' };
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(10,10,30,0.92)';
+    Chart.defaults.plugins.tooltip.borderColor     = 'rgba(99,102,241,0.35)';
+    Chart.defaults.plugins.tooltip.borderWidth     = 1;
+    Chart.defaults.plugins.tooltip.padding         = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius    = 10;
+    Chart.defaults.plugins.tooltip.titleColor      = '#ffffff';
+    Chart.defaults.plugins.tooltip.bodyColor       = '#a0a0c0';
+    Chart.defaults.plugins.tooltip.displayColors   = true;
+    Chart.defaults.plugins.tooltip.boxPadding      = 4;
+});
+
+/* Chart gradient patch */
+document.addEventListener("DOMContentLoaded", function() {
+    // Patch Chart.js defaults for animations
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.animation = { duration: 800, easing: 'easeOutQuart' };
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15,15,35,0.9)';
+        Chart.defaults.plugins.tooltip.borderColor = 'rgba(99,102,241,0.3)';
+        Chart.defaults.plugins.tooltip.borderWidth = 1;
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    }
+});
