@@ -29,112 +29,72 @@ document.addEventListener("DOMContentLoaded", () => {
    1. CHARTS — read data from canvas data-* attributes
    ══════════════════════════════════════════════════════════ */
 function initCharts() {
-    // Read accent color from CSS variable so charts match the active theme
     const style      = getComputedStyle(document.documentElement);
     const accentFrom = style.getPropertyValue("--accent-from").trim() || "#6366f1";
-    const accentTo   = style.getPropertyValue("--accent-to").trim()   || "#8b5cf6";
     const accentRgb  = style.getPropertyValue("--accent-rgb").trim()  || "99,102,241";
-
-    const PALETTE = [
-        accentFrom, accentTo,
-        "#f093fb", "#4facfe", "#43e97b", "#fa709a",
-        "#fee140", "#30cfd0", "#a18cd1", "#fda085"
-    ];
+    const tickColor  = style.getPropertyValue("--text-faint").trim()  || "#888";
+    const textMuted  = style.getPropertyValue("--text-muted").trim()  || "rgba(255,255,255,0.75)";
+    const PALETTE    = [accentFrom,"#8b5cf6","#f093fb","#4facfe","#43e97b","#fa709a","#fee140","#30cfd0","#a18cd1","#fda085"];
     const darkGrid   = "rgba(255,255,255,0.05)";
-    const tickColor  = style.getPropertyValue("--text-faint").trim() || "#888";
-    const legendOpts = { labels: { color: style.getPropertyValue("--text-muted").trim() || "rgba(255,255,255,0.75)", padding: 16 } };
-    const dollarTick = (v) => "₹" + v.toLocaleString();
+    const lo         = { labels: { color: textMuted, padding: 16 } };
+    const tick       = (v) => "\u20b9" + v.toLocaleString();
+    const xs         = { ticks: { color: tickColor }, grid: { color: darkGrid } };
+    const ys         = { ticks: { color: tickColor, callback: tick }, grid: { color: darkGrid } };
 
-    // Read data from <script type="application/json"> islands — safe, no attribute escaping
-    function readIsland(id) {
+    function read(id) {
         const el = document.getElementById(id);
-        return el ? JSON.parse(el.textContent) : [];
+        if (!el) return [];
+        try { return JSON.parse(el.textContent); } catch(e) { return []; }
     }
 
-    const categories    = readIsland("data-categories");
-    const categorySales = readIsland("data-category-sales");
-    const monthlyLabels = readIsland("data-monthly-labels");
-    const monthlySales  = readIsland("data-monthly-sales");
-
-    // Bar chart — sales by category
-    const barEl = document.getElementById("barChart");
-    if (barEl && categories.length) {
-        new Chart(barEl, {
+    function bar(id, labels, data, color, rgb) {
+        const el = document.getElementById(id);
+        if (!el || !labels || !labels.length) return;
+        new Chart(el, {
             type: "bar",
-            data: {
-                labels: categories,
-                datasets: [{
-                    label: "Revenue (₹)",
-                    data: categorySales,
-                    backgroundColor: `rgba(${accentRgb},0.75)`,
-                    borderColor: accentFrom,
-                    borderWidth: 1,
-                    borderRadius: 6,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: legendOpts },
-                scales: {
-                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
-                    y: { ticks: { color: tickColor, callback: dollarTick }, grid: { color: darkGrid } }
-                }
-            }
+            data: { labels, datasets: [{ label: "Revenue (\u20b9)", data,
+                backgroundColor: "rgba(" + rgb + ",0.75)", borderColor: color,
+                borderWidth: 1, borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: true,
+                plugins: { legend: lo }, scales: { x: xs, y: ys } }
         });
     }
 
-    // Doughnut chart — category distribution
-    const pieEl = document.getElementById("pieChart");
-    if (pieEl && categories.length) {
-        new Chart(pieEl, {
+    function donut(id, labels, data, colors) {
+        const el = document.getElementById(id);
+        if (!el || !labels || !labels.length) return;
+        new Chart(el, {
             type: "doughnut",
-            data: {
-                labels: categories,
-                datasets: [{
-                    data: categorySales,
-                    backgroundColor: PALETTE,
-                    borderWidth: 2,
-                    borderColor: "rgba(15,15,35,0.8)"
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: legendOpts }
-            }
+            data: { labels, datasets: [{ data,
+                backgroundColor: colors || PALETTE,
+                borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }] },
+            options: { responsive: true, maintainAspectRatio: true,
+                plugins: { legend: lo } }
         });
     }
 
-    // Line chart — monthly sales trend
-    const lineEl = document.getElementById("lineChart");
-    if (lineEl && monthlyLabels.length) {
-        new Chart(lineEl, {
+    function line(id, labels, data, color, rgb) {
+        const el = document.getElementById(id);
+        if (!el || !labels || !labels.length) return;
+        new Chart(el, {
             type: "line",
-            data: {
-                labels: monthlyLabels,
-                datasets: [{
-                    label: "Monthly Revenue (₹)",
-                    data: monthlySales,
-                    borderColor: accentFrom,
-                    backgroundColor: `rgba(${accentRgb},0.12)`,
-                    borderWidth: 2,
-                    pointBackgroundColor: accentFrom,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: legendOpts },
-                scales: {
-                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
-                    y: { ticks: { color: tickColor, callback: dollarTick }, grid: { color: darkGrid } }
-                }
-            }
+            data: { labels, datasets: [{ label: "Revenue (\u20b9)", data,
+                borderColor: color, backgroundColor: "rgba(" + rgb + ",0.12)",
+                borderWidth: 2, pointBackgroundColor: color,
+                pointRadius: 4, tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: true,
+                plugins: { legend: lo }, scales: { x: xs, y: ys } }
         });
     }
-}
 
+    // Dashboard
+    bar  ("barChart",    read("data-categories"),    read("data-category-sales"), accentFrom, accentRgb);
+    donut("pieChart",    read("data-categories"),    read("data-category-sales"));
+    line ("lineChart",   read("data-monthly-labels"),read("data-monthly-sales"),  accentFrom, accentRgb);
+    donut("genderChart", read("data-gender-labels"), read("data-gender-values"),  ["#f093fb","#4facfe"]);
+    bar  ("cityChart",   read("data-city-labels"),   read("data-city-sales"),     "#4facfe",  "79,172,254");
+    bar  ("brandChart",  read("data-brand-labels"),  read("data-brand-sales"),    "#f093fb",  "240,147,251");
+}
 /* ══════════════════════════════════════════════════════════
    2. SIDEBAR — toggle open/close on mobile
    ══════════════════════════════════════════════════════════ */

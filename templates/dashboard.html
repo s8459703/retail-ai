@@ -207,50 +207,7 @@
     </main>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const read = (id) => JSON.parse(document.getElementById(id)?.textContent || "[]");
-            const darkGrid = "rgba(255,255,255,0.05)";
-            const tickColor = "#888";
-            const legendOpts = { labels: { color: "rgba(255,255,255,0.75)", padding: 16 } };
-
-            // Gender doughnut
-            const gLabels = read("data-gender-labels");
-            const gValues = read("data-gender-values");
-            if (document.getElementById("genderChart") && gLabels.length) {
-                new Chart(document.getElementById("genderChart"), {
-                    type: "doughnut",
-                    data: {
-                        labels: gLabels,
-                        datasets: [{ data: gValues, backgroundColor: ["#f093fb", "#4facfe"], borderWidth: 2, borderColor: "rgba(15,15,35,0.8)" }]
-                    },
-                    options: { responsive: true, plugins: { legend: legendOpts } }
-                });
-            }
-
-            // City bar chart
-            const cLabels = read("data-city-labels");
-            const cSales = read("data-city-sales");
-            if (document.getElementById("cityChart") && cLabels.length) {
-                new Chart(document.getElementById("cityChart"), {
-                    type: "bar",
-                    data: { labels: cLabels, datasets: [{ label: "Revenue (₹)", data: cSales, backgroundColor: "rgba(79,172,254,0.75)", borderColor: "#4facfe", borderWidth: 1, borderRadius: 6 }] },
-                    options: { responsive: true, plugins: { legend: legendOpts }, scales: { x: { ticks: { color: tickColor }, grid: { color: darkGrid } }, y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } } } }
-                });
-            }
-
-            // Brand bar chart
-            const bLabels = read("data-brand-labels");
-            const bSales  = read("data-brand-sales");
-            if (document.getElementById("brandChart") && bLabels.length) {
-                new Chart(document.getElementById("brandChart"), {
-                    type: "bar",
-                    data: { labels: bLabels, datasets: [{ label: "Revenue (₹)", data: bSales, backgroundColor: "rgba(240,147,251,0.75)", borderColor: "#f093fb", borderWidth: 1, borderRadius: 6 }] },
-                    options: { responsive: true, plugins: { legend: legendOpts }, scales: { x: { ticks: { color: tickColor }, grid: { color: darkGrid } }, y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: darkGrid } } } }
-                });
-            }
-        });
-    </script>
+    
 </body>
 
 </html>

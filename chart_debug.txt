@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Retail AI</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="data-categories" type="application/json">["Beauty", "Clothing", "Electronics", "Grocery", "Home", "Sports"]</script>
+    <script id="data-category-sales" type="application/json">[1123749.0, 1391278.0, 1221551.0, 1299177.0, 1274782.0, 1411209.0]</script>
+    <script id="data-monthly-labels" type="application/json">["2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12"]</script>
+    <script id="data-monthly-sales" type="application/json">[655315.0, 532446.0, 703879.0, 596547.0, 577870.0, 753247.0, 557964.0, 777524.0, 665643.0, 618846.0, 622634.0, 659831.0]</script>
+    <script id="data-gender-labels" type="application/json">["Female", "Male"]</script>
+    <script id="data-gender-values" type="application/json">[505, 495]</script>
+    <script id="data-city-labels" type="application/json">["Trichy", "Salem", "Chennai", "Coimbatore", "Madurai"]</script>
+    <script id="data-city-sales" type="application/json">[1886309.0, 1642525.0, 1451366.0, 1386274.0, 1355272.0]</script>
+    <script id="data-brand-labels" type="application/json">["Decathlon", "CocaCola", "Pigeon", "SG", "H\u0026M", "Pepsi", "Aashirvaad", "Prestige", "HomeTown", "Ikea"]</script>
+    <script id="data-brand-sales" type="application/json">[777417.0, 440688.0, 400629.0, 397138.0, 350935.0, 307632.0, 303503.0, 301531.0, 287611.0, 285011.0]</script>
+</head>
+
+<body>
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i class="fas fa-store"></i> Retail AI</div>
+        <nav class="sidebar-nav">
+            <a href="/home" class="nav-item"><i class="fas fa-house"></i> Home</a>
+            <a href="/dashboard" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/categories" class="nav-item"><i class="fas fa-boxes-stacked"></i> Products</a>
+            <a href="/upload" class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+            <a href="/predict" class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+            <a href="/future" class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+            <a href="/settings" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <div class="user-name">admin</div>
+                <div class="user-role">Administrator</div>
+            </div>
+            <a href="/logout" class="logout-btn" title="Logout">
+                <i class="fas fa-right-from-bracket"></i>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2><i class="fas fa-chart-line"></i> Dashboard</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-date" id="topbarDate"></div>
+                <div class="topbar-user">
+                    <i class="fas fa-user-circle"></i> admin
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Row 1 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹7,721,746</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">1,000</div>
+                    <div class="stat-label">Total Transactions</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value">₹7,722</div>
+                    <div class="stat-label">Avg. Order Value</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-info">
+                    <div class="stat-value stat-value--sm">Sports</div>
+                    <div class="stat-label">Top Categ

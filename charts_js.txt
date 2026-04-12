@@ -1,0 +1,107 @@
+function initCharts() {
+    // Read accent color from CSS variable so charts match the active theme
+    const style      = getComputedStyle(document.documentElement);
+    const accentFrom = style.getPropertyValue("--accent-from").trim() || "#6366f1";
+    const accentTo   = style.getPropertyValue("--accent-to").trim()   || "#8b5cf6";
+    const accentRgb  = style.getPropertyValue("--accent-rgb").trim()  || "99,102,241";
+
+    const PALETTE = [
+        accentFrom, accentTo,
+        "#f093fb", "#4facfe", "#43e97b", "#fa709a",
+        "#fee140", "#30cfd0", "#a18cd1", "#fda085"
+    ];
+    const darkGrid   = "rgba(255,255,255,0.05)";
+    const tickColor  = style.getPropertyValue("--text-faint").trim() || "#888";
+    const legendOpts = { labels: { color: style.getPropertyValue("--text-muted").trim() || "rgba(255,255,255,0.75)", padding: 16 } };
+    const dollarTick = (v) => "₹" + v.toLocaleString();
+
+    // Read data from <script type="application/json"> islands — safe, no attribute escaping
+    function readIsland(id) {
+        const el = document.getElementById(id);
+        return el ? JSON.parse(el.textContent) : [];
+    }
+
+    const categories    = readIsland("data-categories");
+    const categorySales = readIsland("data-category-sales");
+    const monthlyLabels = readIsland("data-monthly-labels");
+    const monthlySales  = readIsland("data-monthly-sales");
+
+    // Bar chart — sales by category
+    const barEl = document.getElementById("barChart");
+    if (barEl && categories.length) {
+        new Chart(barEl, {
+            type: "bar",
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: "Revenue (₹)",
+                    data: categorySales,
+                    backgroundColor: `rgba(${accentRgb},0.75)`,
+                    borderColor: accentFrom,
+                    borderWidth: 1,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: legendOpts },
+                scales: {
+                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
+                    y: { ticks: { color: tickColor, callback: dollarTick }, grid: { color: darkGrid } }
+                }
+            }
+        });
+    }
+
+    // Doughnut chart — category distribution
+    const pieEl = document.getElementById("pieChart");
+    if (pieEl && categories.length) {
+        new Chart(pieEl, {
+            type: "doughnut",
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: categorySales,
+                    backgroundColor: PALETTE,
+                    borderWidth: 2,
+                    borderColor: "rgba(15,15,35,0.8)"
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: legendOpts }
+            }
+        });
+    }
+
+    // Line chart — monthly sales trend
+    const lineEl = document.getElementById("lineChart");
+    if (lineEl && monthlyLabels.length) {
+        new Chart(lineEl, {
+            type: "line",
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: "Monthly Revenue (₹)",
+                    data: monthlySales,
+                    borderColor: accentFrom,
+                    backgroundColor: `rgba(${accentRgb},0.12)`,
+                    borderWidth: 2,
+                    pointBackgroundColor: accentFrom,
+                    pointRadius: 4,
+                    tension: 0.4,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: legendOpts },
+                scales: {
+                    x: { ticks: { color: tickColor }, grid: { color: darkGrid } },
+                    y: { ticks: { color: tickColor, callback: dollarTick }, grid: { color: darkGrid } }
+                }
+            }
+        });
+    }
+}
+
