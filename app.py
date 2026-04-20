@@ -488,6 +488,47 @@ def filter_view():
     )
 
 
+@app.route("/trending")
+@login_required
+def trending():
+    try:
+        df = load_data()
+        df["YearMonth"] = df["Year"].astype(str) + "-" + df["Month"].astype(str).str.zfill(2)
+        monthly = df.groupby(["Brand", "YearMonth"])["Total Amount"].sum().reset_index()
+        monthly = monthly.sort_values(["Brand", "YearMonth"])
+        monthly["prev"]   = monthly.groupby("Brand")["Total Amount"].shift(1)
+        monthly["growth"] = (monthly["Total Amount"] - monthly["prev"]) / monthly["prev"] * 100
+        trend = monthly.groupby("Brand")["growth"].mean().dropna().sort_values(ascending=False)
+
+        # Top 5 trending and declining
+        trending_brands  = trend.head(5).reset_index().to_dict(orient="records")
+        declining_brands = trend.tail(5).reset_index().to_dict(orient="records")
+
+        # Monthly data for top trending brand
+        top_brand = trend.index[0]
+        top_data  = monthly[monthly["Brand"] == top_brand][["YearMonth", "Total Amount"]]
+        top_labels = top_data["YearMonth"].tolist()
+        top_values = [round(float(v), 2) for v in top_data["Total Amount"].tolist()]
+
+        # All brands for chart
+        all_labels = trend.index.tolist()
+        all_values = [round(float(v), 2) for v in trend.values.tolist()]
+
+    except Exception as e:
+        return render_template("error.html", message=f"Trending failed: {e}"), 500
+
+    return render_template(
+        "trending.html",
+        trending_brands=trending_brands,
+        declining_brands=declining_brands,
+        top_brand=top_brand,
+        top_labels=top_labels,
+        top_values=top_values,
+        all_labels=all_labels,
+        all_values=all_values,
+    )
+
+
 @app.route("/product")
 @login_required
 def product():

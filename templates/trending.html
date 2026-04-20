@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Products — Retail AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="d-all-labels"  type="application/json">{{ all_labels  | tojson }}</script>
+    <script id="d-all-values"  type="application/json">{{ all_values  | tojson }}</script>
+    <script id="d-top-labels"  type="application/json">{{ top_labels  | tojson }}</script>
+    <script id="d-top-values"  type="application/json">{{ top_values  | tojson }}</script>
+</head>
+<body>
+
+<button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-satellite-dish"></i> Retail AI</div>
+    <nav class="sidebar-nav">
+        <a href="{{ url_for('home_inner') }}"  class="nav-item"><i class="fas fa-house"></i> Home</a>
+        <a href="{{ url_for('dashboard') }}"   class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{{ url_for('product') }}"     class="nav-item"><i class="fas fa-boxes-stacked"></i> Products</a>
+        <a href="{{ url_for('trending') }}"    class="nav-item active"><i class="fas fa-arrow-trend-up"></i> Trending</a>
+        <a href="{{ url_for('categories') }}"  class="nav-item"><i class="fas fa-th-large"></i> Categories</a>
+        <a href="/upload"                      class="nav-item"><i class="fas fa-upload"></i> Upload Data</a>
+        <a href="{{ url_for('predict') }}"     class="nav-item"><i class="fas fa-brain"></i> Prediction</a>
+        <a href="/future"                      class="nav-item"><i class="fas fa-chart-bar"></i> Forecast</a>
+        <a href="/settings"                    class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="avatar">{{ session['user'][0].upper() }}</div>
+        <div class="user-info">
+            <div class="user-name">{{ session['user'] }}</div>
+            <div class="user-role">Administrator</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fas fa-right-from-bracket"></i></a>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <div class="topbar">
+        <div class="topbar-left">
+            <h2><i class="fas fa-arrow-trend-up"></i> Trending Products</h2>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-user"><i class="fas fa-user-circle"></i> {{ session['user'] }}</div>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <h1><i class="fas fa-arrow-trend-up"></i> Brand Trend Analysis</h1>
+        <p>Month-over-month growth rate per brand — identifies which brands are rising and which are declining.</p>
+    </div>
+
+    <!-- KPI row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#22c55e,#16a34a);">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value stat-value--sm">{{ trending_brands[0].Brand }}</div>
+                <div class="stat-label">Fastest Growing Brand</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#22c55e,#16a34a);">
+                <i class="fas fa-percent"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">+{{ "{:.1f}".format(trending_brands[0].avg_growth_pct) }}%</div>
+                <div class="stat-label">Top Growth Rate</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#ef4444,#dc2626);">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value stat-value--sm">{{ declining_brands[-1].Brand }}</div>
+                <div class="stat-label">Fastest Declining Brand</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:linear-gradient(45deg,#f59e0b,#d97706);">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">{{ (trending_brands | length) + (declining_brands | length) }}</div>
+                <div class="stat-label">Brands Analysed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-bar"></i> All Brands — Avg Monthly Growth %</h3>
+            <canvas id="growthChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fas fa-chart-line"></i> Top Brand Monthly Revenue — {{ top_brand }}</h3>
+            <canvas id="topBrandChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="charts-grid">
+
+        <!-- Trending -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-arrow-trend-up" style="color:#22c55e;"></i> Top 5 Trending Brands</h3>
+                <span class="table-count">Rising</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>Brand</th><th>Avg Monthly Growth</th><th>Signal</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in trending_brands %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><span class="category-badge">{{ row.Brand }}</span></td>
+                            <td class="text-highlight">+{{ "{:.1f}".format(row.avg_growth_pct) }}%</td>
+                            <td><span style="color:#22c55e;font-size:0.8rem;"><i class="fas fa-arrow-up"></i> Trending</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Declining -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3><i class="fas fa-arrow-trend-down" style="color:#ef4444;"></i> Top 5 Declining Brands</h3>
+                <span class="table-count">Falling</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>Brand</th><th>Avg Monthly Growth</th><th>Signal</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in declining_brands %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><span class="category-badge">{{ row.Brand }}</span></td>
+                            <td style="color:#fca5a5;font-weight:600;">{{ "{:.1f}".format(row.avg_growth_pct) }}%</td>
+                            <td><span style="color:#ef4444;font-size:0.8rem;"><i class="fas fa-arrow-down"></i> Declining</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/space-particles.js') }}" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const read = id => JSON.parse(document.getElementById(id)?.textContent || "[]");
+    const style     = getComputedStyle(document.documentElement);
+    const accentRgb = style.getPropertyValue("--accent-rgb").trim() || "99,102,241";
+    const tickColor = style.getPropertyValue("--text-faint").trim() || "#888";
+    const textMuted = style.getPropertyValue("--text-muted").trim() || "#aaa";
+    const dg = "rgba(255,255,255,0.04)";
+    const lo = { labels: { color: textMuted, padding: 14 } };
+
+    const allLabels = read("d-all-labels");
+    const allValues = read("d-all-values");
+    const colors    = allValues.map(v => v >= 0 ? "rgba(34,197,94,0.8)" : "rgba(239,68,68,0.8)");
+    const borders   = allValues.map(v => v >= 0 ? "#22c55e" : "#ef4444");
+
+    // Growth bar chart
+    new Chart(document.getElementById("growthChart"), {
+        type: "bar",
+        data: { labels: allLabels, datasets: [{ label: "Avg Growth %", data: allValues,
+            backgroundColor: colors, borderColor: borders, borderWidth: 1, borderRadius: 6 }] },
+        options: { responsive: true, indexAxis: "y",
+            animation: { duration: 900, easing: "easeOutQuart" },
+            plugins: { legend: lo },
+            scales: {
+                x: { ticks: { color: tickColor, callback: v => v + "%" }, grid: { color: dg } },
+                y: { ticks: { color: tickColor }, grid: { color: dg } }
+            }
+        }
+    });
+
+    // Top brand line chart
+    const topLabels = read("d-top-labels");
+    const topValues = read("d-top-values");
+    const ctx = document.getElementById("topBrandChart").getContext("2d");
+    const fillGrad = ctx.createLinearGradient(0, 0, 0, 300);
+    fillGrad.addColorStop(0, `rgba(${accentRgb},0.4)`);
+    fillGrad.addColorStop(1, `rgba(${accentRgb},0.0)`);
+
+    new Chart(document.getElementById("topBrandChart"), {
+        type: "line",
+        data: { labels: topLabels, datasets: [{ label: "Revenue (₹)", data: topValues,
+            borderColor: `rgba(${accentRgb},1)`,
+            backgroundColor: fillGrad,
+            borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 8,
+            pointBackgroundColor: `rgba(${accentRgb},1)`,
+            tension: 0.45, fill: true }] },
+        options: { responsive: true,
+            animation: { duration: 900, easing: "easeOutQuart" },
+            plugins: { legend: lo },
+            scales: {
+                x: { ticks: { color: tickColor }, grid: { color: dg } },
+                y: { ticks: { color: tickColor, callback: v => "₹" + v.toLocaleString() }, grid: { color: dg } }
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
