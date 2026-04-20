@@ -73,6 +73,16 @@ def load_data():
     return df
 
 
+def get_top_city(df):
+    """Single source of truth for top city by revenue."""
+    return df.groupby("Place")["Total Amount"].sum().idxmax()
+
+
+def get_top_category(df):
+    """Single source of truth for top category by revenue."""
+    return df.groupby("Category")["Total Amount"].sum().idxmax()
+
+
 def is_logged_in():
     return "user" in session
 
@@ -95,7 +105,20 @@ def home():
 @app.route("/home")
 @login_required
 def home_inner():
-    return render_template("home.html")
+    try:
+        df = load_data()
+        top_city     = get_top_city(df)
+        top_category = get_top_category(df)
+        total_orders = len(df)
+        total_sales  = round(float(df["Total Amount"].sum()), 2)
+        avg_order    = round(float(df["Total Amount"].mean()), 2)
+    except Exception:
+        top_city = top_category = "—"
+        total_orders = total_sales = avg_order = 0
+    return render_template("home.html",
+        top_city=top_city, top_category=top_category,
+        total_orders=total_orders, total_sales=total_sales, avg_order=avg_order
+    )
 
 
 @app.route("/welcome")  # public: pre-login welcome page
@@ -192,7 +215,7 @@ def dashboard():
     total_sales  = round(float(df["Total Amount"].sum()), 2)
     total_orders = len(df)
     avg_sales    = round(float(df["Total Amount"].mean()), 2)
-    best_product = df.groupby("Category")["Total Amount"].sum().idxmax()
+    best_product = get_top_category(df)
 
     # Category breakdown
     cat_group   = df.groupby("Category")["Total Amount"]

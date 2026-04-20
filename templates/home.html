@@ -75,7 +75,7 @@
         <div class="welcome-banner">
             <div class="welcome-banner-text">
                 <h1>Welcome back, {{ session['user'] }}! 👋</h1>
-                <p>Your retail dataset has <strong>1,000 transactions</strong> across <strong>3 categories</strong> and <strong>6 cities</strong> — totalling <strong>₹26,98,170</strong> in revenue (2023–2024).</p>
+                <p>Your retail dataset has <strong>{{ "{:,}".format(total_orders) }}</strong> transactions across <strong>{{ top_category }}</strong> and other categories — totalling <strong>₹{{ "{:,.0f}".format(total_sales) }}</strong> in revenue.</p>
             </div>
             <a href="{{ url_for('dashboard') }}" class="btn primary">
                 <i class="fas fa-chart-line"></i> Go to Dashboard
@@ -88,28 +88,28 @@
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-receipt"></i></div>
                 <div class="stat-info">
-                    <div class="stat-value">1,000</div>
+                    <div class="stat-value">{{ "{:,}".format(total_orders) }}</div>
                     <div class="stat-label">Total Transactions</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
                 <div class="stat-info">
-                    <div class="stat-value">₹26.9L</div>
+                    <div class="stat-value">₹{{ "{:,.0f}".format(total_sales) }}</div>
                     <div class="stat-label">Total Revenue</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
                 <div class="stat-info">
-                    <div class="stat-value">₹2,698</div>
+                    <div class="stat-value">₹{{ "{:,.0f}".format(avg_order) }}</div>
                     <div class="stat-label">Avg Order Value</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
                 <div class="stat-info">
-                    <div class="stat-value">Coimbatore</div>
+                    <div class="stat-value">{{ top_city }}</div>
                     <div class="stat-label">Top City by Revenue</div>
                 </div>
             </div>
